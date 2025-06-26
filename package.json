@@ -1,8 +1,16 @@
 {
-  "name": "starter",
+  "name": "product-vibes",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "A modern platform for discovering and sharing amazing products",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anthonydoes/product-vibes.git"
+  },
+  "keywords": ["react", "typescript", "vite", "product-hunt", "discovery", "community"],
+  "author": "Product Vibes Team",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc ; vite build",
