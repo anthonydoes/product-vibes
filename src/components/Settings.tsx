@@ -1358,12 +1358,20 @@ const Settings = () => {
       <ProductSubmission
         open={isSubmissionOpen}
         onOpenChange={setIsSubmissionOpen}
-        onSuccess={() => {
+        onSuccess={(productData) => {
           setIsSubmissionOpen(false);
-          toast({
-            title: "Product submitted!",
-            description: "Your product has been submitted successfully.",
-          });
+          if (productData?.slug) {
+            navigate(`/product/${productData.slug}`);
+            toast({
+              title: "Product submitted!",
+              description: "Your product has been submitted successfully.",
+            });
+          } else {
+            toast({
+              title: "Product submitted!",
+              description: "Your product has been submitted successfully.",
+            });
+          }
         }}
       />
 

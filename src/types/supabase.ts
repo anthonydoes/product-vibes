@@ -16,6 +16,7 @@ export interface Database {
           full_name: string | null
           avatar_url: string | null
           website: string | null
+          bio: string | null
           created_at: string
           updated_at: string
         }
@@ -25,6 +26,7 @@ export interface Database {
           full_name?: string | null
           avatar_url?: string | null
           website?: string | null
+          bio?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -34,6 +36,7 @@ export interface Database {
           full_name?: string | null
           avatar_url?: string | null
           website?: string | null
+          bio?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -52,11 +55,14 @@ export interface Database {
           id: string
           name: string
           description: string
+          product_info: string | null
           logo_url: string | null
           product_images: string[]
           website_url: string | null
           category: string
           tags: string[]
+          slug: string | null
+          view_count: number
           created_at: string
           updated_at: string
           creator_id: string
@@ -69,11 +75,14 @@ export interface Database {
           id?: string
           name: string
           description: string
+          product_info?: string | null
           logo_url?: string | null
           product_images?: string[]
           website_url?: string | null
           category: string
           tags?: string[]
+          slug?: string | null
+          view_count?: number
           created_at?: string
           updated_at?: string
           creator_id: string
@@ -86,11 +95,14 @@ export interface Database {
           id?: string
           name?: string
           description?: string
+          product_info?: string | null
           logo_url?: string | null
           product_images?: string[]
           website_url?: string | null
           category?: string
           tags?: string[]
+          slug?: string | null
+          view_count?: number
           created_at?: string
           updated_at?: string
           creator_id?: string

@@ -35,7 +35,7 @@ import { normalizeUrl } from "../lib/utils";
 interface ProductSubmissionProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  onSuccess?: () => void;
+  onSuccess?: (productData?: { id: string; slug: string }) => void;
 }
 
 const ProductSubmission: React.FC<ProductSubmissionProps> = ({
@@ -58,6 +58,7 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
   const [validationErrors, setValidationErrors] = useState<{
     title?: string;
     description?: string;
+    productInfo?: string;
     url?: string;
     category?: string;
     logo?: string;
@@ -66,7 +67,8 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
   }>({});
   const [productData, setProductData] = useState({
     title: "",
-    description: "",
+    description: "", // Short description
+    productInfo: "", // Long description/product info
     url: "",
     category: "",
     tags: [] as string[],
@@ -74,8 +76,36 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
   });
   const [visibilityPlan, setVisibilityPlan] = useState("free");
 
-  // Refs for file inputs
+  // Refs for file inputs and form fields
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const productInfoRef = useRef<HTMLTextAreaElement>(null);
+  const urlRef = useRef<HTMLInputElement>(null);
+  const categoryRef = useRef<HTMLButtonElement>(null);
+
+  // Function to scroll to the first error field
+  const scrollToFirstError = useCallback((errors: typeof validationErrors) => {
+    const errorFields = [
+      { key: 'title', ref: titleRef },
+      { key: 'description', ref: descriptionRef },
+      { key: 'productInfo', ref: productInfoRef },
+      { key: 'url', ref: urlRef },
+      { key: 'category', ref: categoryRef },
+    ];
+
+    for (const field of errorFields) {
+      if (errors[field.key as keyof typeof errors] && field.ref.current) {
+        field.ref.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+        // Focus the field for better UX
+        field.ref.current.focus();
+        break;
+      }
+    }
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -304,6 +334,7 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
       const productToSubmit = {
         name: productData.title,
         description: productData.description,
+        product_info: productData.productInfo || null,
         website_url: normalizeUrl(productData.url) || null,
         category: productData.category,
         tags: productData.tags,
@@ -328,6 +359,7 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
       setProductData({
         title: "",
         description: "",
+        productInfo: "",
         url: "",
         category: "",
         tags: [],
@@ -348,8 +380,10 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
       setUploadProgress({ logo: false, images: false });
       setValidationErrors({});
 
-      // Call success callback and close dialog
-      if (onSuccess) onSuccess();
+      // Call success callback with product data and close dialog
+      if (onSuccess && data) {
+        onSuccess({ id: data.id, slug: data.slug });
+      }
       if (onOpenChange) onOpenChange(false);
 
     } catch (error) {
@@ -427,6 +461,12 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
       isValid = false;
     }
 
+    // Product info validation (required)
+    if (!productData.productInfo.trim()) {
+      errors.productInfo = "Detailed product information is required";
+      isValid = false;
+    }
+
     // URL validation (required)
     if (!productData.url.trim()) {
       errors.url = "Product URL is required";
@@ -474,6 +514,12 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
     }
 
     setValidationErrors(errors);
+    
+    // Scroll to first error if validation failed
+    if (!isValid) {
+      scrollToFirstError(errors);
+    }
+    
     return isValid;
   };
 
@@ -689,6 +735,7 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
                   What's your product called? ✨
                 </Label>
                 <Input
+                  ref={titleRef}
                   id="title"
                   name="title"
                   value={productData.title}
@@ -705,21 +752,49 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
 
               <div className="bg-gradient-to-br from-white/80 to-slate-50/60 rounded-2xl p-6 border border-slate-200/50 shadow-sm backdrop-blur-sm">
                 <Label htmlFor="description" className="text-lg font-semibold text-slate-800 mb-3 block">
-                  Tell us about your product 📝
+                  Quick description ✨
                 </Label>
                 <Textarea
+                  ref={descriptionRef}
                   id="description"
                   name="description"
                   value={productData.description}
                   onChange={handleInputChange}
-                  placeholder="What makes your product special? What problem does it solve?"
-                  className={`text-sm min-h-[140px] rounded-xl border-slate-200/50 bg-white/50 backdrop-blur-sm focus:border-purple-300 focus:ring-purple-200 transition-all duration-300 resize-none ${validationErrors.description ? 'border-red-300 focus:border-red-300 focus:ring-red-200' : ''}`}
+                  placeholder="A brief tagline describing your product (max 160 characters)"
+                  maxLength={160}
+                  className={`text-sm min-h-[100px] rounded-xl border-slate-200/50 bg-white/50 backdrop-blur-sm focus:border-purple-300 focus:ring-purple-200 transition-all duration-300 resize-none ${validationErrors.description ? 'border-red-300 focus:border-red-300 focus:ring-red-200' : ''}`}
                 />
-                {validationErrors.description && (
-                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl">
+                <div className="flex justify-between items-center mt-2">
+                  {validationErrors.description && (
                     <p className="text-sm text-red-600 font-medium">{validationErrors.description}</p>
+                  )}
+                  <span className="text-xs text-slate-500 ml-auto">
+                    {productData.description.length}/160
+                  </span>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-white/80 to-slate-50/60 rounded-2xl p-6 border border-slate-200/50 shadow-sm backdrop-blur-sm">
+                <Label htmlFor="productInfo" className="text-lg font-semibold text-slate-800 mb-3 block">
+                  Detailed product information 📝 *
+                </Label>
+                <Textarea
+                  ref={productInfoRef}
+                  id="productInfo"
+                  name="productInfo"
+                  value={productData.productInfo}
+                  onChange={handleInputChange}
+                  placeholder="Tell us more about your product. What features does it have? What problems does it solve? How does it work? This will be displayed prominently on your product page."
+                  className={`text-sm min-h-[180px] rounded-xl border-slate-200/50 bg-white/50 backdrop-blur-sm focus:border-purple-300 focus:ring-purple-200 transition-all duration-300 resize-none ${validationErrors.productInfo ? 'border-red-300 focus:border-red-300 focus:ring-red-200' : ''}`}
+                />
+                {validationErrors.productInfo && (
+                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl">
+                    <p className="text-sm text-red-600 font-medium">{validationErrors.productInfo}</p>
                   </div>
                 )}
+                <p className="text-sm text-slate-500 mt-3 bg-slate-50/50 rounded-lg p-3">
+                  💡 This detailed information will help users understand what makes your product special
+                </p>
               </div>
 
               <div className="bg-gradient-to-br from-white/80 to-slate-50/60 rounded-2xl p-6 border border-slate-200/50 shadow-sm backdrop-blur-sm">
@@ -727,6 +802,7 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
                   Where can people find it? 🌐
                 </Label>
                 <Input
+                  ref={urlRef}
                   id="url"
                   name="url"
                   value={productData.url}
@@ -823,7 +899,10 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
                     clearValidationError('category');
                   }}
                 >
-                  <SelectTrigger className={`text-sm h-14 rounded-xl border-slate-200/50 bg-white/50 backdrop-blur-sm focus:border-purple-300 focus:ring-purple-200 transition-all duration-300 ${validationErrors.category ? 'border-red-300 focus:border-red-300 focus:ring-red-200' : ''}`}>
+                  <SelectTrigger 
+                    ref={categoryRef}
+                    className={`text-sm h-14 rounded-xl border-slate-200/50 bg-white/50 backdrop-blur-sm focus:border-purple-300 focus:ring-purple-200 transition-all duration-300 ${validationErrors.category ? 'border-red-300 focus:border-red-300 focus:ring-red-200' : ''}`}
+                  >
                     <SelectValue placeholder="What type of product is this?" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl border-slate-200/50 bg-white/95 backdrop-blur-sm">
@@ -1044,42 +1123,45 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
                         )}
                       </div>
 
-                      {/* Title */}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-base mb-1 line-clamp-2 group-hover:text-primary transition-colors">
-                          {productData.title || "Your Amazing Product"}
-                        </h3>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {productData.description || "Your product description will appear here..."}
-                        </p>
-                      </div>
+                      {/* Title and Vote Button Container */}
+                      <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-start gap-2">
+                        {/* Title */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-base mb-1 line-clamp-2 group-hover:text-primary transition-colors">
+                            {productData.title || "Your Amazing Product"}
+                          </h3>
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {productData.description || "Your product description will appear here..."}
+                          </p>
+                        </div>
 
-                      {/* Vote button */}
-                      <div className="flex-shrink-0">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-1 px-3 h-8 text-sm bg-gradient-to-r from-purple-500 to-cyan-500 text-white border-0 hover:from-purple-600 hover:to-cyan-600"
-                        >
-                          <ChevronUp className="h-4 w-4" />
-                          <span>0</span>
-                        </Button>
+                        {/* Vote button */}
+                        <div className="flex-shrink-0 self-start">
+                          <button
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border transition-all duration-200 text-sm font-medium bg-background hover:bg-accent border-border text-muted-foreground hover:text-foreground"
+                          >
+                            <span className="transition-transform duration-200">
+                              ▲
+                            </span>
+                            <span>0</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
 
                     {/* Bottom row: Username, Date, Category */}
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Avatar className="h-4 w-4 flex-shrink-0">
                           <AvatarFallback className="text-[10px]">
                             {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || "U"}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-xs">
+                        <span className="text-xs truncate">
                           {user?.user_metadata?.full_name || user?.email || "You"}
                         </span>
                         <span className="text-xs">•</span>
-                        <span className="text-xs">just now</span>
+                        <span className="text-xs whitespace-nowrap">just now</span>
                       </div>
                       
                       {/* Category pill */}

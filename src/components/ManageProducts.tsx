@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Edit,
@@ -101,6 +102,7 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
   const [formData, setFormData] = useState({
     name: product.name,
     description: product.description || '',
+    product_info: product.product_info || '',
     website_url: product.website_url || '',
     category: product.category,
     tags: product.tags || []
@@ -113,20 +115,64 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
   const [validationErrors, setValidationErrors] = useState<{
     name?: string;
     description?: string;
+    product_info?: string;
     category?: string;
     logo?: string;
     media?: string;
     submit?: string;
   }>({  });
 
-  // Refs for file inputs
+  // Refs for form fields and scroll-to-error functionality
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const productInfoRef = useRef<HTMLTextAreaElement>(null);
+  const websiteUrlRef = useRef<HTMLInputElement>(null);
+  const categoryRef = useRef<HTMLButtonElement>(null);
+
+  // Function to scroll to the first error field
+  const scrollToFirstError = useCallback((errors: typeof validationErrors) => {
+    // Use setTimeout to ensure the DOM has been updated with the error states
+    setTimeout(() => {
+      const errorFields = [
+        { key: 'name', ref: nameRef },
+        { key: 'description', ref: descriptionRef },
+        { key: 'product_info', ref: productInfoRef },
+        { key: 'website_url', ref: websiteUrlRef },
+        { key: 'category', ref: categoryRef },
+      ];
+
+      for (const field of errorFields) {
+        if (errors[field.key as keyof typeof errors] && field.ref.current) {
+          field.ref.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+          // Focus the field for better UX
+          field.ref.current.focus();
+          break;
+        }
+      }
+    }, 100);
+  }, []);
+
+  // Helper function to clear validation errors
+  const clearValidationError = (field: keyof typeof validationErrors) => {
+    if (validationErrors[field]) {
+      setValidationErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
 
   // Reset form when product changes
   useEffect(() => {
     setFormData({
       name: product.name,
       description: product.description || '',
+      product_info: product.product_info || '',
       website_url: product.website_url || '',
       category: product.category,
       tags: product.tags || []
@@ -144,13 +190,7 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
     setFormData(prev => ({ ...prev, [name]: value }));
     
     // Clear validation error when user starts typing
-    if (validationErrors[name as keyof typeof validationErrors]) {
-      setValidationErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[name as keyof typeof validationErrors];
-        return newErrors;
-      });
-    }
+    clearValidationError(name as keyof typeof validationErrors);
   };
 
   const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -206,13 +246,7 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
       setLogoPreview(previewUrl);
       
       // Clear any logo validation errors
-      if (validationErrors.logo) {
-        setValidationErrors(prev => {
-          const newErrors = { ...prev };
-          delete newErrors.logo;
-          return newErrors;
-        });
-      }
+      clearValidationError('logo');
     }
     
     if (logoInputRef.current) {
@@ -252,13 +286,7 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
       setPreviews([...previews, ...newPreviews]);
       
       // Clear media validation errors
-      if (validationErrors.media) {
-        setValidationErrors(prev => {
-          const newErrors = { ...prev };
-          delete newErrors.media;
-          return newErrors;
-        });
-      }
+      clearValidationError('media');
     }
   };
 
@@ -286,12 +314,23 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
       isValid = false;
     }
 
+    if (!formData.product_info.trim()) {
+      errors.product_info = "Detailed product information is required";
+      isValid = false;
+    }
+
     if (!formData.category) {
       errors.category = "Please select a category";
       isValid = false;
     }
 
     setValidationErrors(errors);
+    
+    // Scroll to first error if validation failed
+    if (!isValid) {
+      scrollToFirstError(errors);
+    }
+    
     return isValid;
   };
 
@@ -359,6 +398,7 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
       const updateData = {
         name: formData.name.trim(),
         description: formData.description.trim(),
+        product_info: formData.product_info.trim() || null,
         website_url: formData.website_url ? normalizeUrl(formData.website_url) : null,
         category: formData.category,
         tags: formData.tags,
@@ -413,6 +453,7 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
                 Product Name ✨
               </Label>
               <Input
+                ref={nameRef}
                 id="name"
                 name="name"
                 value={formData.name}
@@ -428,19 +469,26 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
             {/* Description */}
             <div className="bg-gradient-to-br from-white/80 to-slate-50/60 rounded-2xl p-6 border border-slate-200/50 shadow-sm backdrop-blur-sm">
               <Label htmlFor="description" className="text-lg font-semibold text-slate-800 mb-3 block">
-                Description 📝
+                Quick Description ✨
               </Label>
               <Textarea
+                ref={descriptionRef}
                 id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                placeholder="What makes your product special?"
+                placeholder="A brief tagline describing your product (max 160 characters)"
+                maxLength={160}
                 className={`text-sm min-h-[100px] rounded-xl border-slate-200/50 bg-white/50 backdrop-blur-sm focus:border-purple-300 focus:ring-purple-200 transition-all duration-300 resize-none ${validationErrors.description ? 'border-red-300 focus:border-red-300 focus:ring-red-200' : ''}`}
               />
-              {validationErrors.description && (
-                <p className="text-sm text-red-600 mt-2">{validationErrors.description}</p>
-              )}
+              <div className="flex justify-between items-center mt-2">
+                {validationErrors.description && (
+                  <p className="text-sm text-red-600">{validationErrors.description}</p>
+                )}
+                <span className="text-xs text-slate-500 ml-auto">
+                  {formData.description.length}/160
+                </span>
+              </div>
             </div>
 
             {/* Website URL */}
@@ -449,6 +497,7 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
                 Website URL 🌐
               </Label>
               <Input
+                ref={websiteUrlRef}
                 id="website_url"
                 name="website_url"
                 value={formData.website_url}
@@ -538,16 +587,10 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
                 value={formData.category}
                 onValueChange={(value) => {
                   setFormData(prev => ({ ...prev, category: value }));
-                  if (validationErrors.category) {
-                    setValidationErrors(prev => {
-                      const newErrors = { ...prev };
-                      delete newErrors.category;
-                      return newErrors;
-                    });
-                  }
+                  clearValidationError('category');
                 }}
               >
-                <SelectTrigger className={`text-sm h-12 rounded-xl border-slate-200/50 bg-white/50 backdrop-blur-sm focus:border-purple-300 focus:ring-purple-200 transition-all duration-300 ${validationErrors.category ? 'border-red-300 focus:border-red-300 focus:ring-red-200' : ''}`}>
+                <SelectTrigger ref={categoryRef} className={`text-sm h-12 rounded-xl border-slate-200/50 bg-white/50 backdrop-blur-sm focus:border-purple-300 focus:ring-purple-200 transition-all duration-300 ${validationErrors.category ? 'border-red-300 focus:border-red-300 focus:ring-red-200' : ''}`}>
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl border-slate-200/50 bg-white/95 backdrop-blur-sm">
@@ -725,6 +768,28 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
               )}
             </div>
 
+            {/* Product Information */}
+            <div className="bg-gradient-to-br from-white/80 to-slate-50/60 rounded-2xl p-6 border border-slate-200/50 shadow-sm backdrop-blur-sm">
+              <Label htmlFor="product_info" className="text-lg font-semibold text-slate-800 mb-3 block">
+                Detailed Product Information 📝 *
+              </Label>
+              <Textarea
+                ref={productInfoRef}
+                id="product_info"
+                name="product_info"
+                value={formData.product_info}
+                onChange={handleInputChange}
+                placeholder="Tell us more about your product. What features does it have? What problems does it solve? This will be displayed prominently on your product page."
+                className={`text-sm min-h-[180px] rounded-xl border-slate-200/50 bg-white/50 backdrop-blur-sm focus:border-purple-300 focus:ring-purple-200 transition-all duration-300 resize-none ${validationErrors.product_info ? 'border-red-300 focus:border-red-300 focus:ring-red-200' : ''}`}
+              />
+              {validationErrors.product_info && (
+                <p className="text-sm text-red-600 mt-2">{validationErrors.product_info}</p>
+              )}
+              <p className="text-sm text-slate-500 mt-3 bg-slate-50/50 rounded-lg p-3">
+                💡 This detailed information will help users understand what makes your product special
+              </p>
+            </div>
+
             {validationErrors.submit && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-xl mb-4">
                 <p className="text-sm text-red-600 font-medium">{validationErrors.submit}</p>
@@ -768,6 +833,7 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
 
 const ManageProducts = () => {
   const { user } = useAuthContext();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -1223,9 +1289,13 @@ const ManageProducts = () => {
       <ProductSubmission
         open={isSubmissionOpen}
         onOpenChange={setIsSubmissionOpen}
-        onSuccess={() => {
+        onSuccess={(productData) => {
           setIsSubmissionOpen(false);
-          fetchUserProducts(); // Refresh the products list
+          if (productData?.slug) {
+            navigate(`/product/${productData.slug}`);
+          } else {
+            fetchUserProducts(); // Fallback: refresh the products list
+          }
         }}
       />
 

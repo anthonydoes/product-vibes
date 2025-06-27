@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Badge } from "./ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import EmptyState from "./EmptyState";
@@ -27,7 +27,9 @@ const ProductCard = ({ product }: { product: Product }) => {
   const [isUpvoted, setIsUpvoted] = React.useState(false);
   const [upvoteCount, setUpvoteCount] = React.useState(product.upvotes);
 
-  const handleUpvote = () => {
+  const handleUpvote = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent link navigation
+    e.stopPropagation(); // Stop event bubbling
     setIsUpvoted(!isUpvoted);
     setUpvoteCount(prev => isUpvoted ? prev - 1 : prev + 1);
   };
@@ -67,13 +69,14 @@ const ProductCard = ({ product }: { product: Product }) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -2 }}
-      transition={{ duration: 0.2 }}
-      className="group bg-card rounded-2xl border hover:shadow-lg transition-all duration-200 overflow-hidden"
-    >
+    <Link to={`/product/${product.slug || product.id}`} className="block">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -2 }}
+        transition={{ duration: 0.2 }}
+        className="group bg-card rounded-2xl border hover:shadow-lg transition-all duration-200 overflow-hidden cursor-pointer"
+      >
       <div className="p-4 sm:p-6">
         {/* Header Row - Logo, Title, Badges */}
         <div className="flex items-start gap-3 mb-4">
@@ -97,21 +100,7 @@ const ProductCard = ({ product }: { product: Product }) => {
             <div className="flex items-start justify-between gap-3">
               {/* Title */}
               <div className="flex-1 min-w-0">
-                {product.website_url ? (
-                  <a 
-                    href={product.website_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="flex items-center gap-2 hover:text-primary transition-colors group/link"
-                  >
-                    <h3 className="font-semibold text-base sm:text-lg text-foreground group-hover/link:text-primary transition-colors truncate">
-                      {product.name}
-                    </h3>
-                    <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 opacity-0 group-hover/link:opacity-100 transition-all" />
-                  </a>
-                ) : (
-                  <h3 className="font-semibold text-base sm:text-lg text-foreground truncate">{product.name}</h3>
-                )}
+                <h3 className="font-semibold text-base sm:text-lg text-foreground truncate">{product.name}</h3>
               </div>
             </div>
           </div>
@@ -128,12 +117,23 @@ const ProductCard = ({ product }: { product: Product }) => {
         <div className="flex items-center justify-between gap-3">
           {/* Creator Info, Date, and Category - All on same line */}
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <Avatar className="h-5 w-5 sm:h-6 sm:w-6 border flex-shrink-0">
-              <AvatarImage src={getCreatorAvatar()} />
-              <AvatarFallback className="text-[10px] font-medium">{getCreatorInitials()}</AvatarFallback>
-            </Avatar>
+            <Link 
+              to={`/user/${product.profiles?.username || product.creator_id}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Avatar className="h-5 w-5 sm:h-6 sm:w-6 border flex-shrink-0 hover:ring-2 hover:ring-primary/20 transition-all">
+                <AvatarImage src={getCreatorAvatar()} />
+                <AvatarFallback className="text-[10px] font-medium">{getCreatorInitials()}</AvatarFallback>
+              </Avatar>
+            </Link>
             <div className="flex items-center gap-2 min-w-0 flex-1 text-xs text-muted-foreground">
-              <span className="font-medium truncate">{getCreatorName()}</span>
+              <Link 
+                to={`/user/${product.profiles?.username || product.creator_id}`} 
+                className="font-medium truncate hover:text-primary transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {getCreatorName()}
+              </Link>
               <span className="text-muted-foreground/60">•</span>
               <span className="text-muted-foreground whitespace-nowrap">
                 {new Date(product.created_at).toLocaleDateString()}
@@ -169,7 +169,8 @@ const ProductCard = ({ product }: { product: Product }) => {
           </div>
         </div>
       </div>
-    </motion.div>
+      </motion.div>
+    </Link>
   );
 };
 

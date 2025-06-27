@@ -182,8 +182,8 @@ const ProductCard = ({
               </p>
 
               {/* Actions */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1 flex-wrap">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -209,7 +209,8 @@ const ProductCard = ({
                         className="flex items-center gap-1 px-1.5 h-6 text-[11px] hover:bg-primary/10 hover:text-primary"
                       >
                         <MessageSquare className="h-3 w-3" />
-                        <span>{cardData.comments}</span>
+                        <span className="hidden xs:inline">{cardData.comments}</span>
+                        <span className="xs:hidden">{cardData.comments}</span>
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -223,7 +224,7 @@ const ProductCard = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-6 w-6 p-0 hover:bg-primary/10 hover:text-primary"
+                      className="h-6 w-6 p-0 hover:bg-primary/10 hover:text-primary flex-shrink-0"
                     >
                       <Share2 className="h-3 w-3" />
                     </Button>

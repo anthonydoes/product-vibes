@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase'
 import type { Database } from '../types/supabase'
+import { generateSlug, generateUniqueSlug } from '../utils/slugGenerator'
 
 type Product = Database['public']['Tables']['products']['Row']
 type ProductInsert = Database['public']['Tables']['products']['Insert']
@@ -23,7 +24,9 @@ export class ProductService {
           id,
           username,
           full_name,
-          avatar_url
+          avatar_url,
+          website,
+          bio
         )
       `)
       .order('created_at', { ascending: false })
@@ -83,9 +86,27 @@ export class ProductService {
 
   // Create a new product
   static async createProduct(product: ProductInsert) {
+    // Generate a slug from the product name
+    const baseSlug = generateSlug(product.name || 'untitled-product')
+    
+    // Get existing slugs to ensure uniqueness
+    const { data: existingProducts } = await supabase
+      .from('products')
+      .select('slug')
+      .not('slug', 'is', null)
+    
+    const existingSlugs = existingProducts?.map(p => p.slug).filter(Boolean) || []
+    const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs as string[])
+    
+    // Add the slug to the product data
+    const productWithSlug = {
+      ...product,
+      slug: uniqueSlug
+    }
+
     const { data, error } = await supabase
       .from('products')
-      .insert(product)
+      .insert(productWithSlug)
       .select()
       .single()
 
@@ -167,5 +188,118 @@ export class ProductService {
       .single()
 
     return { hasUpvoted: !!data, error }
+  }
+
+  // Get product by slug
+  static async getProductBySlug(slug: string) {
+    const { data, error } = await supabase
+      .from('products')
+      .select(`
+        *,
+        profiles!products_creator_id_fkey (
+          id,
+          username,
+          full_name,
+          avatar_url,
+          website,
+          bio
+        )
+      `)
+      .eq('slug', slug)
+      .single()
+
+    return { data, error }
+  }
+
+  // Get product by slug or ID (fallback)
+  static async getProductBySlugOrId(slugOrId: string) {
+    // First try to get by slug
+    const { data: slugData, error: slugError } = await supabase
+      .from('products')
+      .select(`
+        *,
+        profiles!products_creator_id_fkey (
+          id,
+          username,
+          full_name,
+          avatar_url,
+          website,
+          bio
+        )
+      `)
+      .eq('slug', slugOrId)
+      .single()
+
+    if (slugData && !slugError) {
+      return { data: slugData, error: null }
+    }
+
+    // If not found by slug, try by ID
+    const { data: idData, error: idError } = await supabase
+      .from('products')
+      .select(`
+        *,
+        profiles!products_creator_id_fkey (
+          id,
+          username,
+          full_name,
+          avatar_url,
+          website,
+          bio
+        )
+      `)
+      .eq('id', slugOrId)
+      .single()
+
+    return { data: idData, error: idError }
+  }
+
+  // Increment product view count
+  static async incrementProductViews(productId: string, userId?: string) {
+    // First get current view count
+    const { data: product } = await supabase
+      .from('products')
+      .select('view_count')
+      .eq('id', productId)
+      .single()
+
+    const currentViews = product?.view_count || 0
+
+    // Update with incremented count
+    const { data, error } = await supabase
+      .from('products')
+      .update({ view_count: currentViews + 1 })
+      .eq('id', productId)
+
+    return { data, error }
+  }
+
+  // Check if user has upvoted a product (alias for consistency)
+  static async checkUserUpvote(productId: string, userId: string) {
+    return this.hasUserUpvoted(productId, userId)
+  }
+
+  // Add upvote
+  static async addUpvote(productId: string, userId: string) {
+    return this.upvoteProduct(productId, userId)
+  }
+
+  // Remove upvote
+  static async removeUpvote(productId: string, userId: string) {
+    // Remove from upvotes table
+    const { error: deleteError } = await supabase
+      .from('upvotes')
+      .delete()
+      .eq('product_id', productId)
+      .eq('user_id', userId)
+
+    if (deleteError) return { data: null, error: deleteError }
+
+    // Decrement upvotes count
+    const { data, error } = await supabase.rpc('decrement_upvotes', {
+      product_id: productId
+    })
+
+    return { data, error }
   }
 }

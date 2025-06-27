@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ChevronDown,
@@ -22,6 +23,7 @@ import { categoryConfig } from "../data/categories";
 
 const Home = () => {
   const { user, loading, signOut } = useAuthContext();
+  const navigate = useNavigate();
   const [isSubmissionOpen, setIsSubmissionOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'signin' | 'signup'>('signin');
@@ -62,22 +64,23 @@ const Home = () => {
   };
 
   // Handle product submission success
-  const handleProductSubmitted = () => {
-    console.log('Product submitted successfully, refreshing list...');
-    console.log('Current activeTab:', activeTab);
-    console.log('Current selectedCategory:', selectedCategory);
-    console.log('Current products count:', products.length);
+  const handleProductSubmitted = (productData?: { id: string; slug: string }) => {
+    console.log('Product submitted successfully:', productData);
     
-    // Switch to "Fresh Drops" tab where new products belong
-    setActiveTab("new");
-    setSelectedCategory("all");
-    
-    // Small delay to ensure database has processed the new product
-    setTimeout(() => {
-      console.log('Triggering refetch...');
-      refetch(); // Refresh products after submission
-    }, 1000);
     setIsSubmissionOpen(false);
+    
+    // Navigate to the newly created product page
+    if (productData?.slug) {
+      navigate(`/product/${productData.slug}`);
+    } else {
+      // Fallback: refresh the current view if no product data
+      console.log('No product data provided, refreshing list...');
+      setActiveTab("new");
+      setSelectedCategory("all");
+      setTimeout(() => {
+        refetch();
+      }, 1000);
+    }
   };
 
   // Handle opening submission modal
