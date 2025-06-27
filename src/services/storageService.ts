@@ -125,4 +125,48 @@ export class StorageService {
       return null
     }
   }
+
+  /**
+   * Upload an avatar file for a user
+   * @param file - The avatar file to upload
+   * @param userId - The user ID for the avatar
+   * @returns Promise with the public URL or error
+   */
+  static async uploadAvatar(
+    file: File, 
+    userId: string
+  ): Promise<{ url: string | null; error: Error | null }> {
+    try {
+      // Generate unique filename for avatar
+      const timestamp = Date.now()
+      const fileExtension = file.name.split('.').pop()
+      const fileName = `avatar_${userId}_${timestamp}.${fileExtension}`
+      
+      // Create the full path in avatars folder
+      const filePath = `avatars/${fileName}`
+
+      // Upload file
+      const { data, error } = await supabase.storage
+        .from(this.BUCKET_NAME)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true // Allow overwriting user's previous avatar
+        })
+
+      if (error) {
+        console.error('Avatar upload error:', error)
+        return { url: null, error }
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from(this.BUCKET_NAME)
+        .getPublicUrl(filePath)
+
+      return { url: urlData.publicUrl, error: null }
+    } catch (error) {
+      console.error('Avatar upload error:', error)
+      return { url: null, error: error as Error }
+    }
+  }
 }

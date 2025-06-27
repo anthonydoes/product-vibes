@@ -9,6 +9,7 @@ export class FileValidator {
   // Maximum file sizes
   static readonly MAX_LOGO_SIZE = 5 * 1024 * 1024; // 5MB
   static readonly MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+  static readonly MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB for avatars
   static readonly MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB for all files
 
   // Allowed file types
@@ -92,6 +93,29 @@ export class FileValidator {
           error: `File "${file.name}" must be less than ${this.formatFileSize(this.MAX_IMAGE_SIZE)}`
         };
       }
+    }
+
+    return { isValid: true };
+  }
+
+  /**
+   * Validate an avatar file
+   */
+  static validateAvatar(file: File): FileValidationResult {
+    // Check file type
+    if (!this.ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      return {
+        isValid: false,
+        error: 'Avatar must be a valid image file (JPEG, PNG, WebP, or GIF)'
+      };
+    }
+
+    // Check file size
+    if (file.size > this.MAX_AVATAR_SIZE) {
+      return {
+        isValid: false,
+        error: `Avatar file size must be less than ${this.formatFileSize(this.MAX_AVATAR_SIZE)}`
+      };
     }
 
     return { isValid: true };
