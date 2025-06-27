@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Upload, X, Image, FileVideo, Plus, Check, ExternalLink, ChevronUp, MessageSquare, Share2 } from "lucide-react";
 import {
@@ -74,6 +74,9 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
   });
   const [visibilityPlan, setVisibilityPlan] = useState("free");
 
+  // Refs for file inputs
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
@@ -83,6 +86,8 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
       const validation = FileValidator.validateProductMedia(allFiles);
       if (!validation.isValid) {
         setValidationErrors(prev => ({ ...prev, media: validation.error }));
+        // Clear the input value so files can be selected again
+        e.target.value = '';
         return;
       }
       
@@ -95,6 +100,9 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
       // Clear media validation errors
       clearValidationError('media');
     }
+    
+    // Clear the input value to allow the same files to be selected again
+    e.target.value = '';
   };
 
   const removeFile = (index: number) => {
@@ -109,6 +117,14 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
 
     setFiles(newFiles);
     setPreviews(newPreviews);
+    
+    // Clear the file input value if no files remain
+    if (newFiles.length === 0) {
+      const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -344,7 +360,7 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
     }
   };
 
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       
@@ -352,27 +368,47 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
       const validation = FileValidator.validateLogo(file);
       if (!validation.isValid) {
         setValidationErrors(prev => ({ ...prev, logo: validation.error }));
+        // Clear the input value so the same file can be selected again
+        if (logoInputRef.current) {
+          logoInputRef.current.value = '';
+        }
         return;
       }
       
-      setLogoFile(file);
+      // Clear any previous logo
+      if (logoPreview) {
+        URL.revokeObjectURL(logoPreview);
+      }
       
       // Create preview URL
       const previewUrl = URL.createObjectURL(file);
-      setLogoPreview(previewUrl);
+      
+      // Update state - using functional updates to ensure we have the latest state
+      setLogoFile(() => file);
+      setLogoPreview(() => previewUrl);
       
       // Clear any logo validation errors
       clearValidationError('logo');
     }
-  };
+    
+    // Clear the input value to allow the same file to be selected again
+    if (logoInputRef.current) {
+      logoInputRef.current.value = '';
+    }
+  }, [logoPreview]); // Add logoPreview as dependency
 
-  const removeLogo = () => {
+  const removeLogo = useCallback(() => {
     if (logoPreview) {
       URL.revokeObjectURL(logoPreview);
     }
     setLogoFile(null);
     setLogoPreview(null);
-  };
+    
+    // Clear the file input value
+    if (logoInputRef.current) {
+      logoInputRef.current.value = '';
+    }
+  }, [logoPreview]);
 
   // Validation functions
   const validateDetailsTab = (): boolean => {
@@ -720,9 +756,10 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
                   {!logoPreview ? (
                     <div
                       className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer hover:bg-gradient-to-br hover:from-purple-50/50 hover:to-cyan-50/50 transition-all duration-300 group ${validationErrors.logo ? 'border-red-300 bg-red-50/30' : 'border-slate-300/50 hover:border-purple-300/50'}`}
-                      onClick={() => document.getElementById("logo-upload")?.click()}
+                      onClick={() => logoInputRef.current?.click()}
                     >
                       <input
+                        ref={logoInputRef}
                         id="logo-upload"
                         type="file"
                         accept="image/*"
