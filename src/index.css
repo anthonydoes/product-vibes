@@ -85,3 +85,8 @@
       display: none;  /* Chrome, Safari, Opera */
     }
   }
+
+  /* Custom font size override for modal */
+  .text-lg {
+    font-size: 0.9rem !important;
+  }

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Upload, X, Image, FileVideo, Plus, Check, ExternalLink, ChevronUp } from "lucide-react";
+import { Upload, X, Image, FileVideo, Plus, Check, ExternalLink, ChevronUp, MessageSquare, Share2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -467,28 +467,58 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto bg-background">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">
-            Drop Your Product
-          </DialogTitle>
-          <DialogDescription>
-            Share your product with the community and get valuable feedback
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[900px] max-h-[95vh] bg-gradient-to-br from-slate-50/80 via-white to-blue-50/60 backdrop-blur-sm border-0 shadow-2xl flex flex-col">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 via-transparent to-cyan-100/20 pointer-events-none" />
+        <div className="relative z-10 flex-1 flex flex-col min-h-0">
+          <DialogHeader className="flex-shrink-0 pb-6">
+            <div className="text-center">
+              <DialogTitle className="text-2xl font-bold text-slate-800 mb-2">
+                Launch Your Product
+              </DialogTitle>
+              <DialogDescription className="text-slate-600 max-w-lg mx-auto">
+                Share your creation with our community of makers and builders
+              </DialogDescription>
+            </div>
+          </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="media">Media</TabsTrigger>
-            <TabsTrigger value="visibility">Visibility</TabsTrigger>
+        <div className="flex-1 min-h-0 overflow-y-auto px-1">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-6 flex flex-col h-full">
+          <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-slate-100/50 via-white to-slate-100/50 border border-slate-200/50 rounded-xl p-1 shadow-sm flex-shrink-0">
+            <TabsTrigger 
+              value="details" 
+              className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 font-medium"
+            >
+              Details
+            </TabsTrigger>
+            <TabsTrigger 
+              value="media" 
+              className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 font-medium"
+            >
+              Media
+            </TabsTrigger>
+            <TabsTrigger 
+              value="visibility" 
+              className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 font-medium"
+            >
+              Visibility
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="media" className="space-y-4 mt-4">
-            <div>
-              <h3 className="text-lg font-medium mb-4">Product Images & Videos *</h3>
+          <div className="flex-1 min-h-0 overflow-y-auto py-4">
+
+          <TabsContent value="media" className="space-y-6 flex-1 min-h-0 overflow-y-auto">
+            <div className="bg-gradient-to-br from-white/80 to-slate-50/60 rounded-2xl p-6 border border-slate-200/50 shadow-sm backdrop-blur-sm">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                  <Image className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-slate-800">Product Gallery</h3>
+                  <p className="text-sm text-slate-600">Showcase your product with stunning visuals</p>
+                </div>
+              </div>
               <div
-                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-accent/50 transition-colors ${validationErrors.media ? 'border-red-500' : ''}`}
+                className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer hover:bg-gradient-to-br hover:from-purple-50/50 hover:to-cyan-50/50 transition-all duration-300 group ${validationErrors.media ? 'border-red-300 bg-red-50/30' : 'border-slate-300/50 hover:border-purple-300/50'}`}
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 onClick={() => document.getElementById("file-upload")?.click()}
@@ -501,25 +531,39 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
                   className="hidden"
                   onChange={handleFileChange}
                 />
-                <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
-                <h3 className="mt-2 text-lg font-semibold">
-                  Drag & drop or click to upload
+                <div className="bg-gradient-to-br from-purple-100 to-cyan-100 rounded-2xl w-20 h-20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Upload className="h-10 w-10 text-purple-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-800 mb-2">
+                  Drop your media here
                 </h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Upload images or videos (max 5 files, up to 10MB each)
+                <p className="text-slate-600 mb-4">
+                  or click to browse your files
+                </p>
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-cyan-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                  <Upload className="h-4 w-4" />
+                  Choose Files
+                </div>
+                <p className="text-sm text-slate-500 mt-4">
+                  Upload up to 5 files • Max 10MB each • Images & Videos
                 </p>
               </div>
               {validationErrors.media && (
-                <p className="text-sm text-red-500 mt-2">{validationErrors.media}</p>
+                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+                  <p className="text-sm text-red-600 font-medium">{validationErrors.media}</p>
+                </div>
               )}
             </div>
 
             {previews.length > 0 && (
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Drag images to reorder them. The first image will be your main preview.
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+              <div className="bg-gradient-to-br from-white/80 to-slate-50/60 rounded-2xl p-6 border border-slate-200/50 shadow-sm backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full"></div>
+                  <p className="text-sm text-slate-600 font-medium">
+                    Drag to reorder • First image is your main preview
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {previews.map((preview, index) => (
                   <div
                     key={index}
@@ -528,8 +572,8 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
                     onDragOver={(e) => handleImageDragOver(e, index)}
                     onDrop={(e) => handleImageDrop(e, index)}
                     onDragEnd={handleDragEnd}
-                    className={`relative group rounded-md overflow-hidden aspect-video bg-muted cursor-move transition-all ${
-                      draggedIndex === index ? 'opacity-50 scale-95' : 'hover:scale-105'
+                    className={`relative group rounded-2xl overflow-hidden aspect-video bg-gradient-to-br from-slate-100 to-slate-200 cursor-move transition-all duration-300 hover:shadow-lg border border-slate-200/50 ${
+                      draggedIndex === index ? 'opacity-50 scale-95 shadow-2xl' : 'hover:scale-105'
                     }`}
                   >
                     {files[index].type.startsWith("image/") ? (
@@ -539,114 +583,143 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
                         className="w-full h-full object-cover pointer-events-none"
                       />
                     ) : (
-                      <div className="flex items-center justify-center h-full">
-                        <FileVideo className="h-10 w-10 text-muted-foreground" />
-                        <span className="ml-2 text-sm text-muted-foreground">
+                      <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-purple-100 to-cyan-100">
+                        <FileVideo className="h-8 w-8 text-purple-600 mb-2" />
+                        <span className="text-xs text-slate-600 font-medium text-center px-2">
                           {files[index].name}
                         </span>
                       </div>
                     )}
                     <button
                       onClick={() => removeFile(index)}
-                      className="absolute top-2 right-2 bg-background/80 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 hover:text-white"
+                      className="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600 hover:scale-110 shadow-lg"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-3 w-3" />
                     </button>
-                    <div className="absolute bottom-2 left-2 bg-background/80 px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-                      {index + 1}
+                    <div className="absolute bottom-3 left-3 bg-gradient-to-r from-purple-500 to-cyan-500 text-white px-3 py-1 rounded-lg text-xs font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg">
+                      #{index + 1}
                     </div>
+                    {index === 0 && (
+                      <div className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-lg text-xs font-semibold shadow-lg">
+                        Main
+                      </div>
+                    )}
                   </div>
                 ))}
                 {previews.length < 5 && (
                   <div
-                    className="flex items-center justify-center border-2 border-dashed rounded-md aspect-video cursor-pointer hover:bg-accent/50 transition-colors"
+                    className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300/50 rounded-2xl aspect-video cursor-pointer hover:bg-gradient-to-br hover:from-purple-50/50 hover:to-cyan-50/50 hover:border-purple-300/50 transition-all duration-300 group"
                     onClick={() =>
                       document.getElementById("file-upload")?.click()
                     }
                   >
-                    <Plus className="h-8 w-8 text-muted-foreground" />
+                    <div className="bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl w-12 h-12 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
+                      <Plus className="h-6 w-6 text-slate-600" />
+                    </div>
+                    <span className="text-xs text-slate-500 font-medium">Add More</span>
                   </div>
                 )}
                 </div>
               </div>
             )}
 
-            <div className="flex justify-between mt-4">
-              <Button variant="outline" onClick={() => setActiveTab("details")}>
-                Back: Product Details
-              </Button>
-              <Button 
-                onClick={() => {
-                  if (validateMediaTab()) {
-                    setActiveTab("visibility");
-                  }
-                }}
-              >
-                Next: Visibility Options
-              </Button>
+            <div className="sticky bottom-0 bg-gradient-to-t from-white via-white/95 to-transparent pt-8 pb-4 mt-8">
+              <div className="flex justify-between items-center">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setActiveTab("details")}
+                  className="border-slate-300 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 rounded-xl px-6 py-3"
+                >
+                  ← Back to Details
+                </Button>
+                <Button 
+                  onClick={() => {
+                    if (validateMediaTab()) {
+                      setActiveTab("visibility");
+                    }
+                  }}
+                  className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white rounded-xl px-8 py-3 shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  Continue to Visibility →
+                </Button>
+              </div>
             </div>
           </TabsContent>
 
-          <TabsContent value="details" className="space-y-4 mt-4">
-            <div className="grid gap-4">
-              <div>
-                <Label htmlFor="title">Product Title *</Label>
+          <TabsContent value="details" className="space-y-4 flex-1 min-h-0 overflow-y-auto">
+            <div className="grid gap-6 pb-4">
+              <div className="bg-gradient-to-br from-white/80 to-slate-50/60 rounded-2xl p-6 border border-slate-200/50 shadow-sm backdrop-blur-sm">
+                <Label htmlFor="title" className="text-lg font-semibold text-slate-800 mb-3 block">
+                  What's your product called? ✨
+                </Label>
                 <Input
                   id="title"
                   name="title"
                   value={productData.title}
                   onChange={handleInputChange}
-                  placeholder="What's your product called?"
-                  className={`mt-1 ${validationErrors.title ? 'border-red-500 focus:border-red-500' : ''}`}
+                  placeholder="Enter your product name..."
+                  className={`text-sm h-14 rounded-xl border-slate-200/50 bg-white/50 backdrop-blur-sm focus:border-purple-300 focus:ring-purple-200 transition-all duration-300 ${validationErrors.title ? 'border-red-300 focus:border-red-300 focus:ring-red-200' : ''}`}
                 />
                 {validationErrors.title && (
-                  <p className="text-sm text-red-500 mt-1">{validationErrors.title}</p>
+                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl">
+                    <p className="text-sm text-red-600 font-medium">{validationErrors.title}</p>
+                  </div>
                 )}
               </div>
 
-              <div>
-                <Label htmlFor="description">Description *</Label>
+              <div className="bg-gradient-to-br from-white/80 to-slate-50/60 rounded-2xl p-6 border border-slate-200/50 shadow-sm backdrop-blur-sm">
+                <Label htmlFor="description" className="text-lg font-semibold text-slate-800 mb-3 block">
+                  Tell us about your product 📝
+                </Label>
                 <Textarea
                   id="description"
                   name="description"
                   value={productData.description}
                   onChange={handleInputChange}
-                  placeholder="Tell us about your product..."
-                  className={`mt-1 min-h-[120px] ${validationErrors.description ? 'border-red-500 focus:border-red-500' : ''}`}
+                  placeholder="What makes your product special? What problem does it solve?"
+                  className={`text-sm min-h-[140px] rounded-xl border-slate-200/50 bg-white/50 backdrop-blur-sm focus:border-purple-300 focus:ring-purple-200 transition-all duration-300 resize-none ${validationErrors.description ? 'border-red-300 focus:border-red-300 focus:ring-red-200' : ''}`}
                 />
                 {validationErrors.description && (
-                  <p className="text-sm text-red-500 mt-1">{validationErrors.description}</p>
+                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl">
+                    <p className="text-sm text-red-600 font-medium">{validationErrors.description}</p>
+                  </div>
                 )}
               </div>
 
-              <div>
-                <Label htmlFor="url">Product URL *</Label>
+              <div className="bg-gradient-to-br from-white/80 to-slate-50/60 rounded-2xl p-6 border border-slate-200/50 shadow-sm backdrop-blur-sm">
+                <Label htmlFor="url" className="text-lg font-semibold text-slate-800 mb-3 block">
+                  Where can people find it? 🌐
+                </Label>
                 <Input
                   id="url"
                   name="url"
                   value={productData.url}
                   onChange={handleInputChange}
-                  placeholder="your-product.com"
-                  className={`mt-1 ${validationErrors.url ? 'border-red-500 focus:border-red-500' : ''}`}
+                  placeholder="your-awesome-product.com"
+                  className={`text-sm h-14 rounded-xl border-slate-200/50 bg-white/50 backdrop-blur-sm focus:border-purple-300 focus:ring-purple-200 transition-all duration-300 ${validationErrors.url ? 'border-red-300 focus:border-red-300 focus:ring-red-200' : ''}`}
                 />
                 {validationErrors.url && (
-                  <p className="text-sm text-red-500 mt-1">{validationErrors.url}</p>
+                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl">
+                    <p className="text-sm text-red-600 font-medium">{validationErrors.url}</p>
+                  </div>
                 )}
-                <p className="text-xs text-muted-foreground mt-1">
-                  We'll automatically add https:// if not provided
+                <p className="text-sm text-slate-500 mt-3 bg-slate-50/50 rounded-lg p-3">
+                  💡 Don't worry about https:// - we'll add it automatically
                 </p>
               </div>
 
               {/* Logo Upload */}
-              <div>
-                <Label htmlFor="logo">Product Logo *</Label>
-                <p className="text-xs text-muted-foreground mb-2">
+              <div className="bg-gradient-to-br from-white/80 to-slate-50/60 rounded-2xl p-6 border border-slate-200/50 shadow-sm backdrop-blur-sm">
+                <Label htmlFor="logo" className="text-lg font-semibold text-slate-800 mb-3 block">
+                  Upload your logo 🎨
+                </Label>
+                <p className="text-sm text-slate-600 mb-4">
                   This will be the main image shown in your product card
                 </p>
                 <div className="mt-1">
                   {!logoPreview ? (
                     <div
-                      className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:bg-accent/50 hover:border-primary/50 transition-colors ${validationErrors.logo ? 'border-red-500' : ''}`}
+                      className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer hover:bg-gradient-to-br hover:from-purple-50/50 hover:to-cyan-50/50 transition-all duration-300 group ${validationErrors.logo ? 'border-red-300 bg-red-50/30' : 'border-slate-300/50 hover:border-purple-300/50'}`}
                       onClick={() => document.getElementById("logo-upload")?.click()}
                     >
                       <input
@@ -656,41 +729,56 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
                         className="hidden"
                         onChange={handleLogoChange}
                       />
-                      <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
-                      <p className="text-sm font-medium text-foreground">
-                        Upload Product Logo
+                      <div className="bg-gradient-to-br from-purple-100 to-cyan-100 rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <Upload className="h-8 w-8 text-purple-600" />
+                      </div>
+                      <p className="text-lg font-semibold text-slate-800 mb-2">
+                        Upload your logo
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-cyan-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                        <Image className="h-4 w-4" />
+                        Choose Logo
+                      </div>
+                      <p className="text-sm text-slate-500 mt-4">
                         PNG, JPG, WebP up to 5MB
                       </p>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-4 p-4 border rounded-lg bg-accent/20">
-                      <img
-                        src={logoPreview}
-                        alt="Logo preview"
-                        className="w-16 h-16 rounded-lg object-cover border"
-                      />
+                    <div className="flex items-center gap-6 p-6 border border-slate-200/50 rounded-2xl bg-gradient-to-br from-green-50/50 to-emerald-50/50">
+                      <div className="relative">
+                        <img
+                          src={logoPreview}
+                          alt="Logo preview"
+                          className="w-20 h-20 rounded-2xl object-cover border-2 border-white shadow-lg"
+                        />
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+                          <Check className="h-3 w-3 text-white" />
+                        </div>
+                      </div>
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-foreground">Logo uploaded</p>
-                        <p className="text-xs text-muted-foreground">This will appear in your product card</p>
+                        <p className="text-lg font-semibold text-slate-800">Perfect! Logo uploaded</p>
+                        <p className="text-sm text-slate-600">This will appear in your product card</p>
                       </div>
                       <button
                         onClick={removeLogo}
-                        className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition-colors"
+                        className="bg-red-500 text-white p-3 rounded-xl hover:bg-red-600 transition-all duration-300 hover:scale-110 shadow-lg"
                       >
                         <X className="h-4 w-4" />
                       </button>
                     </div>
                   )}
                   {validationErrors.logo && (
-                    <p className="text-sm text-red-500 mt-1">{validationErrors.logo}</p>
+                    <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+                      <p className="text-sm text-red-600 font-medium">{validationErrors.logo}</p>
+                    </div>
                   )}
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="category">Category *</Label>
+              <div className="bg-gradient-to-br from-white/80 to-slate-50/60 rounded-2xl p-6 border border-slate-200/50 shadow-sm backdrop-blur-sm">
+                <Label htmlFor="category" className="text-lg font-semibold text-slate-800 mb-3 block">
+                  Choose your category 📂
+                </Label>
                 <Select
                   value={productData.category}
                   onValueChange={(value) => {
@@ -698,55 +786,62 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
                     clearValidationError('category');
                   }}
                 >
-                  <SelectTrigger className={`mt-1 ${validationErrors.category ? 'border-red-500 focus:border-red-500' : ''}`}>
-                    <SelectValue placeholder="Select a category for your product" />
+                  <SelectTrigger className={`text-sm h-14 rounded-xl border-slate-200/50 bg-white/50 backdrop-blur-sm focus:border-purple-300 focus:ring-purple-200 transition-all duration-300 ${validationErrors.category ? 'border-red-300 focus:border-red-300 focus:ring-red-200' : ''}`}>
+                    <SelectValue placeholder="What type of product is this?" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="rounded-xl border-slate-200/50 bg-white/95 backdrop-blur-sm">
                     {categoryConfig
                       .filter((cat) => cat.id !== "all") // Exclude "All" option
                       .map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          <div className="flex items-center gap-2">
-                            <span>{category.icon}</span>
-                            <span>{category.name}</span>
+                        <SelectItem key={category.id} value={category.id} className="rounded-lg hover:bg-gradient-to-r hover:from-purple-50 hover:to-cyan-50">
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg">{category.icon}</span>
+                            <span className="font-medium">{category.name}</span>
                           </div>
                         </SelectItem>
                       ))}
                   </SelectContent>
                 </Select>
                 {validationErrors.category && (
-                  <p className="text-sm text-red-500 mt-1">{validationErrors.category}</p>
+                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl">
+                    <p className="text-sm text-red-600 font-medium">{validationErrors.category}</p>
+                  </div>
                 )}
                 {!productData.category && !validationErrors.category && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Please select a category to help users discover your product
+                  <p className="text-sm text-slate-500 mt-3 bg-slate-50/50 rounded-lg p-3">
+                    💡 Help users discover your product by selecting the right category
                   </p>
                 )}
               </div>
 
-              <div>
-                <Label htmlFor="tags">Tags (up to 5)</Label>
+              <div className="bg-gradient-to-br from-white/80 to-slate-50/60 rounded-2xl p-6 border border-slate-200/50 shadow-sm backdrop-blur-sm">
+                <Label htmlFor="tags" className="text-lg font-semibold text-slate-800 mb-3 block">
+                  Add some tags 🏷️
+                </Label>
                 <Input
                   id="tags"
                   name="tagInput"
                   value={productData.tagInput}
                   onChange={handleTagInputChange}
                   onKeyDown={handleTagInputKeyDown}
-                  placeholder="Add tags and press Enter"
-                  className="mt-1"
+                  placeholder="productivity, automation, saas..."
+                  className="text-sm h-14 rounded-xl border-slate-200/50 bg-white/50 backdrop-blur-sm focus:border-purple-300 focus:ring-purple-200 transition-all duration-300"
                   disabled={productData.tags.length >= 5}
                 />
+                <p className="text-sm text-slate-500 mt-2">
+                  Press Enter to add a tag • Up to 5 tags
+                </p>
 
                 {productData.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <div className="flex flex-wrap gap-3 mt-4">
                     {productData.tags.map((tag) => (
                       <Badge
                         key={tag}
                         variant="secondary"
-                        className="px-2 py-1"
+                        className="px-4 py-2 bg-gradient-to-r from-purple-100 to-cyan-100 text-slate-700 border-slate-200/50 rounded-xl hover:scale-105 transition-transform duration-200"
                       >
                         {tag}
-                        <button onClick={() => removeTag(tag)} className="ml-2">
+                        <button onClick={() => removeTag(tag)} className="ml-2 hover:text-red-500 transition-colors">
                           <X className="h-3 w-3" />
                         </button>
                       </Badge>
@@ -756,29 +851,41 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
               </div>
             </div>
 
-            <div className="flex justify-end mt-4">
-              <Button 
-                onClick={() => {
-                  if (validateDetailsTab()) {
-                    setActiveTab("media");
-                  }
-                }}
-              >
-                Next: Media Upload
-              </Button>
+            <div className="sticky bottom-0 bg-gradient-to-t from-white via-white/95 to-transparent pt-4 pb-4">
+              <div className="flex justify-end">
+                <Button 
+                  onClick={() => {
+                    if (validateDetailsTab()) {
+                      setActiveTab("media");
+                    }
+                  }}
+                  className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white rounded-xl px-8 py-3 shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  Continue to Media →
+                </Button>
+              </div>
             </div>
           </TabsContent>
 
-          <TabsContent value="visibility" className="space-y-4 mt-4">
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Choose Visibility Plan</h3>
+          <TabsContent value="visibility" className="space-y-6 flex-1 min-h-0 overflow-y-auto">
+            <div className="pb-4">
+            <div className="bg-gradient-to-br from-white/80 to-slate-50/60 rounded-2xl p-6 border border-slate-200/50 shadow-sm backdrop-blur-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                  <span className="text-white text-lg">🚀</span>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-slate-800">Choose Your Launch Plan</h3>
+                  <p className="text-slate-600">Select how you want to showcase your product</p>
+                </div>
+              </div>
 
               <RadioGroup
                 value={visibilityPlan}
                 onValueChange={setVisibilityPlan}
                 className="grid gap-4 md:grid-cols-2"
               >
-                <div>
+                <div className="relative">
                   <RadioGroupItem
                     value="free"
                     id="free"
@@ -786,19 +893,38 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
                   />
                   <Label
                     htmlFor="free"
-                    className="flex flex-col items-start p-4 border rounded-md cursor-pointer hover:bg-accent/50 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-accent"
+                    className="flex flex-col p-6 border-2 border-slate-200/50 rounded-2xl cursor-pointer hover:bg-gradient-to-br hover:from-green-50/50 hover:to-emerald-50/50 peer-data-[state=checked]:border-green-400 peer-data-[state=checked]:bg-gradient-to-br peer-data-[state=checked]:from-green-50 peer-data-[state=checked]:to-emerald-50 transition-all duration-300 group"
                   >
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-lg font-semibold">Free</span>
-                      <span className="text-lg font-bold">$0</span>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg flex items-center justify-center">
+                          <span className="text-white text-sm font-bold">F</span>
+                        </div>
+                        <span className="text-xl font-bold text-slate-800">Free Launch</span>
+                      </div>
+                      <span className="text-2xl font-bold text-green-600">$0</span>
                     </div>
-                    <span className="text-sm text-muted-foreground mt-1">
-                      Standard submission with basic visibility
-                    </span>
+                    <div className="space-y-3 text-sm text-slate-600">
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-500" />
+                        <span>Standard community visibility</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-500" />
+                        <span>Organic discovery</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-500" />
+                        <span>Forever free</span>
+                      </div>
+                    </div>
+                    <div className="absolute top-4 right-4 w-5 h-5 border-2 border-green-400 rounded-full opacity-0 peer-data-[state=checked]:opacity-100 transition-opacity duration-300">
+                      <div className="w-full h-full bg-green-400 rounded-full scale-50"></div>
+                    </div>
                   </Label>
                 </div>
 
-                <div>
+                <div className="relative">
                   <RadioGroupItem
                     value="boost"
                     id="boost"
@@ -806,212 +932,237 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
                   />
                   <Label
                     htmlFor="boost"
-                    className="flex flex-col items-start p-4 border rounded-md cursor-pointer hover:bg-accent/50 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-accent"
+                    className="flex flex-col p-6 border-2 border-slate-200/50 rounded-2xl cursor-pointer hover:bg-gradient-to-br hover:from-purple-50/50 hover:to-cyan-50/50 peer-data-[state=checked]:border-purple-400 peer-data-[state=checked]:bg-gradient-to-br peer-data-[state=checked]:from-purple-50 peer-data-[state=checked]:to-cyan-50 transition-all duration-300 group relative overflow-hidden"
                   >
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-lg font-semibold">Boost</span>
-                      <span className="text-lg font-bold">$15</span>
+                    <div className="absolute top-0 right-0 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-bl-lg text-xs font-bold">
+                      POPULAR
                     </div>
-                    <span className="text-sm text-muted-foreground mt-1">
-                      7-day boost with enhanced visibility and analytics
-                    </span>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                          <span className="text-white text-sm font-bold">B</span>
+                        </div>
+                        <span className="text-xl font-bold text-slate-800">Boost Launch</span>
+                      </div>
+                      <span className="text-2xl font-bold text-purple-600">$15</span>
+                    </div>
+                    <div className="space-y-3 text-sm text-slate-600">
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-purple-500" />
+                        <span>Featured placement for 7 days</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-purple-500" />
+                        <span>Enhanced visibility & analytics</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-purple-500" />
+                        <span>Priority support</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-purple-500" />
+                        <span>Badge & special styling</span>
+                      </div>
+                    </div>
+                    <div className="absolute top-4 right-4 w-5 h-5 border-2 border-purple-400 rounded-full opacity-0 peer-data-[state=checked]:opacity-100 transition-opacity duration-300">
+                      <div className="w-full h-full bg-purple-400 rounded-full scale-50"></div>
+                    </div>
                   </Label>
                 </div>
               </RadioGroup>
+            </div>
 
               <div className="mt-6">
-                <h4 className="text-md font-medium mb-2">Preview</h4>
-                <div className="bg-card rounded-lg border p-4 hover:shadow-md transition-all duration-200">
-                  <div className="flex items-center gap-4">
-                    {/* Logo - exact match to ProductGrid */}
-                    <div className="flex-shrink-0">
-                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-purple-50 to-blue-50 border">
-                        {logoPreview ? (
-                          <img 
-                            src={logoPreview} 
-                            alt={productData.title || "Product logo"} 
-                            className="w-full h-full object-cover" 
-                          />
-                        ) : previews.length > 0 ? (
-                          files[0].type.startsWith("image/") ? (
-                            <img 
-                              src={previews[0]} 
-                              alt={productData.title || "Product preview"} 
-                              className="w-full h-full object-cover" 
+                <h4 className="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                  <span>👀</span> Preview
+                </h4>
+                <Card className="overflow-hidden h-full bg-white border-border hover:shadow-lg hover:border-primary/20 transition-all duration-300 cursor-pointer group">
+                  <div className="p-4">
+                    {/* Top row: Logo, Title, Vote button */}
+                    <div className="flex items-start gap-3 mb-3">
+                      {/* Logo */}
+                      <div className="relative flex-shrink-0">
+                        <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted">
+                          {logoPreview ? (
+                            <img
+                              src={logoPreview}
+                              alt={productData.title || "Product logo"}
+                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-2xl">
+                            <div className="w-full h-full flex items-center justify-center text-lg bg-gradient-to-br from-purple-50 to-blue-50">
                               📦
-                            </div>
-                          )
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-2xl">
-                            📦
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Content - exact match to ProductGrid */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            {productData.url ? (
-                              <div className="flex items-center gap-2">
-                                <h3 className="font-semibold text-base truncate">
-                                  {productData.title || "Your Product Title"}
-                                </h3>
-                                <ExternalLink className="h-3 w-3 opacity-60" />
-                              </div>
-                            ) : (
-                              <h3 className="font-semibold text-base truncate">
-                                {productData.title || "Your Product Title"}
-                              </h3>
-                            )}
-                            
-                            {/* Fresh badge for new products */}
-                            <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs border-0">
-                              ✨ Fresh
-                            </Badge>
-                          </div>
-                          
-                          <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
-                            {productData.description || "Your product description will appear here..."}
-                          </p>
-                          
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Avatar className="h-4 w-4">
-                                <AvatarFallback className="text-[10px]">YU</AvatarFallback>
-                              </Avatar>
-                              <span>You</span>
-                            </div>
-                            <Badge variant="secondary" className="text-xs">
-                              {productData.category || "Category"}
-                            </Badge>
-                            <span className="text-muted-foreground">
-                              {new Date().toLocaleDateString()}
-                            </span>
-                          </div>
-                          
-                          {/* Tags - exact match to ProductGrid */}
-                          {productData.tags && productData.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-2">
-                              {productData.tags.slice(0, 3).map((tag) => (
-                                <Badge key={tag} variant="outline" className="text-xs px-2 py-0.5">
-                                  {tag}
-                                </Badge>
-                              ))}
-                              {productData.tags.length > 3 && (
-                                <Badge variant="outline" className="text-xs px-2 py-0.5 text-muted-foreground">
-                                  +{productData.tags.length - 3}
-                                </Badge>
-                              )}
                             </div>
                           )}
                         </div>
-                        
-                        {/* Simple upvote button */}
-                        <div className="ml-4">
-                          <div className="flex flex-col items-end gap-1">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-6 px-2 text-xs gap-1 hover:border-primary hover:bg-primary/5 relative overflow-hidden transition-all duration-300"
+                        {(visibilityPlan === "boost") && (
+                          <div className="absolute -top-1 -right-1">
+                            <Badge
+                              variant="secondary"
+                              className="bg-orange-500 text-white hover:bg-orange-600 text-[8px] px-1 py-0.5 h-3"
                             >
-                              <ChevronUp className="h-3 w-3 text-current" />
-                              <span className="font-semibold">0</span>
-                            </Button>
+                              🔥
+                            </Badge>
                           </div>
-                        </div>
+                        )}
+                      </div>
+
+                      {/* Title */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-base mb-1 line-clamp-2 group-hover:text-primary transition-colors">
+                          {productData.title || "Your Amazing Product"}
+                        </h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {productData.description || "Your product description will appear here..."}
+                        </p>
+                      </div>
+
+                      {/* Vote button */}
+                      <div className="flex-shrink-0">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-1 px-3 h-8 text-sm bg-gradient-to-r from-purple-500 to-cyan-500 text-white border-0 hover:from-purple-600 hover:to-cyan-600"
+                        >
+                          <ChevronUp className="h-4 w-4" />
+                          <span>0</span>
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Bottom row: Username, Date, Category */}
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Avatar className="h-4 w-4 flex-shrink-0">
+                          <AvatarFallback className="text-[10px]">
+                            {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-xs">
+                          {user?.user_metadata?.full_name || user?.email || "You"}
+                        </span>
+                        <span className="text-xs">•</span>
+                        <span className="text-xs">just now</span>
+                      </div>
+                      
+                      {/* Category pill */}
+                      <div className="flex-shrink-0">
+                        {productData.category && (
+                          <Badge
+                            variant="outline"
+                            className="text-xs px-2 py-1 bg-transparent border-2 border-transparent bg-gradient-to-r from-purple-500 to-cyan-500 bg-clip-border"
+                            style={{
+                              background: 'linear-gradient(white, white) padding-box, linear-gradient(45deg, rgb(168, 85, 247), rgb(6, 182, 212)) border-box'
+                            }}
+                          >
+                            {categoryConfig.find(c => c.id === productData.category)?.name || productData.category}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </div>
-                </div>
+                </Card>
               </div>
-            </div>
 
             {/* Upload Error Display */}
             {validationErrors.upload && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{validationErrors.upload}</p>
-                <p className="text-xs text-red-500 mt-1">
-                  Check the storage setup guide in STORAGE_FIX.md
-                </p>
+              <div className="p-4 bg-gradient-to-r from-red-50 to-red-100/50 border border-red-200 rounded-2xl">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <X className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-red-700 font-semibold mb-1">Upload Error</p>
+                    <p className="text-sm text-red-600">{validationErrors.upload}</p>
+                  </div>
+                </div>
               </div>
             )}
+            </div>
 
-            <div className="flex justify-between mt-4">
-              <Button variant="outline" onClick={() => setActiveTab("media")}>
-                Back: Media Upload
-              </Button>
-              <Button 
-                onClick={handleSubmit}
-                disabled={
-                  isSubmitting || 
-                  !user || 
-                  !productData.title || 
-                  !productData.description || 
-                  !productData.url ||
-                  !productData.category ||
-                  !logoFile ||
-                  files.length === 0
-                }
-              >
-                {isSubmitting ? (
-                  <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    {uploadProgress.logo && "Uploading logo..."}
-                    {uploadProgress.images && "Uploading images..."}
-                    {!uploadProgress.logo && !uploadProgress.images && "Creating product..."}
-                  </div>
-                ) : (
-                  "Submit Product"
-                )}
-              </Button>
+            <div className="sticky bottom-0 bg-gradient-to-t from-white via-white/95 to-transparent pt-8 pb-4">
+              <div className="flex justify-between items-center">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setActiveTab("media")}
+                  className="border-slate-300 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 rounded-xl px-6 py-3"
+                >
+                  ← Back to Media
+                </Button>
+                <Button 
+                  onClick={handleSubmit}
+                  disabled={
+                    isSubmitting || 
+                    !user || 
+                    !productData.title || 
+                    !productData.description || 
+                    !productData.url ||
+                    !productData.category ||
+                    !logoFile ||
+                    files.length === 0
+                  }
+                  className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white rounded-xl px-8 py-3 shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center gap-3">
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                      <span>
+                        {uploadProgress.logo && "Uploading logo..."}
+                        {uploadProgress.images && "Uploading images..."}
+                        {!uploadProgress.logo && !uploadProgress.images && "Creating magic..."}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span>🚀 Launch Product</span>
+                    </div>
+                  )}
+                </Button>
+              </div>
             </div>
           </TabsContent>
+          </div>
         </Tabs>
-
-        <DialogFooter className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            {activeTab === "details" && "Step 1 of 3: Add product details"}
-            {activeTab === "media" && "Step 2 of 3: Upload media"}
-            {activeTab === "visibility" &&
-              "Step 3 of 3: Choose visibility options"}
+        </div>
+        
+        <DialogFooter className="flex items-center justify-between pt-6 border-t border-gradient-to-r from-transparent via-slate-200/50 to-transparent bg-gradient-to-r from-slate-50/50 via-white to-slate-50/50 rounded-b-2xl">
+          <div className="text-sm text-slate-600 font-medium">
+            {activeTab === "details" && "✨ Step 1 of 3: Product details"}
+            {activeTab === "media" && "📸 Step 2 of 3: Media upload"}
+            {activeTab === "visibility" && "🚀 Step 3 of 3: Launch options"}
           </div>
 
-          <div className="flex space-x-2">
+          <div className="flex items-center gap-3">
             <motion.div
-              className={`w-2 h-2 rounded-full ${activeTab === "details" ? "bg-primary" : "bg-muted"}`}
+              className={`w-3 h-3 rounded-full border-2 ${activeTab === "details" ? "bg-gradient-to-r from-purple-500 to-cyan-500 border-transparent" : "bg-transparent border-slate-300"}`}
               animate={{ scale: activeTab === "details" ? [1, 1.2, 1] : 1 }}
               transition={{
-                duration: 0.5,
+                duration: 0.8,
                 repeat: activeTab === "details" ? Infinity : 0,
-                repeatDelay: 1,
+                repeatDelay: 1.5,
               }}
             />
             <motion.div
-              className={`w-2 h-2 rounded-full ${activeTab === "media" ? "bg-primary" : "bg-muted"}`}
+              className={`w-3 h-3 rounded-full border-2 ${activeTab === "media" ? "bg-gradient-to-r from-purple-500 to-cyan-500 border-transparent" : "bg-transparent border-slate-300"}`}
               animate={{ scale: activeTab === "media" ? [1, 1.2, 1] : 1 }}
               transition={{
-                duration: 0.5,
+                duration: 0.8,
                 repeat: activeTab === "media" ? Infinity : 0,
-                repeatDelay: 1,
+                repeatDelay: 1.5,
               }}
             />
             <motion.div
-              className={`w-2 h-2 rounded-full ${activeTab === "visibility" ? "bg-primary" : "bg-muted"}`}
+              className={`w-3 h-3 rounded-full border-2 ${activeTab === "visibility" ? "bg-gradient-to-r from-purple-500 to-cyan-500 border-transparent" : "bg-transparent border-slate-300"}`}
               animate={{ scale: activeTab === "visibility" ? [1, 1.2, 1] : 1 }}
               transition={{
-                duration: 0.5,
+                duration: 0.8,
                 repeat: activeTab === "visibility" ? Infinity : 0,
-                repeatDelay: 1,
+                repeatDelay: 1.5,
               }}
             />
           </div>
         </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
