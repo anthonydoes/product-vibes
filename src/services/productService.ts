@@ -254,22 +254,38 @@ export class ProductService {
     return { data: idData, error: idError }
   }
 
-  // Increment product view count
-  static async incrementProductViews(productId: string, userId?: string) {
-    // First get current view count
-    const { data: product } = await supabase
-      .from('products')
-      .select('view_count')
-      .eq('id', productId)
-      .single()
+  // Increment product view count (only once per session per product, and not for creators viewing their own products)
+  static async incrementProductViews(productId: string, userId?: string, creatorId?: string) {
+    // Don't count views from the product creator (except maybe the initial creation view)
+    if (userId && creatorId && userId === creatorId) {
+      // Skip view counting for creators viewing their own products
+      return { data: null, error: null };
+    }
 
-    const currentViews = product?.view_count || 0
+    // Check if this view has already been counted in this session
+    const sessionKey = `viewed_product_${productId}`;
+    const hasViewedInSession = sessionStorage.getItem(sessionKey);
+    
+    if (hasViewedInSession) {
+      // Already counted this view in this session, don't count again
+      return { data: null, error: null };
+    }
 
-    // Update with incremented count
-    const { data, error } = await supabase
-      .from('products')
-      .update({ view_count: currentViews + 1 })
-      .eq('id', productId)
+    // Mark as viewed in this session
+    sessionStorage.setItem(sessionKey, 'true');
+
+    // Use the database function that updates both products.view_count and inserts into product_views
+    const { data, error } = await supabase.rpc('increment_product_views', {
+      product_uuid: productId,
+      user_uuid: userId || null,
+      user_ip: null // We could get this from request headers in the future
+    })
+
+    if (error) {
+      console.error('Error incrementing product views:', error)
+      // Remove from session storage if the database call failed
+      sessionStorage.removeItem(sessionKey);
+    }
 
     return { data, error }
   }

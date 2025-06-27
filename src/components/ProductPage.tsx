@@ -82,8 +82,8 @@ const ProductPage = () => {
       
       setProduct(data);
       
-      // Track view (increment view count)
-      await ProductService.incrementProductViews(data.id);
+      // Track view (increment view count) - don't count if user is the creator
+      await ProductService.incrementProductViews(data.id, user?.id, data.creator_id);
       
       // Check if user has upvoted this product
       if (user) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { TrendingUp, Zap, Clock, Rocket, Trophy, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -6,69 +6,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useActivity } from "../hooks/useActivity";
 import type { ActivityItem } from "../services/activityService";
 
-interface ActivityFeedProps {
-  isSticky?: boolean;
-  opacity?: number;
-  scale?: number;
-}
-
-const ActivityFeed: React.FC<ActivityFeedProps> = ({ isSticky = false, opacity = 1, scale = 1 }) => {
+const ActivityFeed: React.FC = () => {
   const navigate = useNavigate();
   const { activities, loading, error } = useActivity(30000); // Refresh every 30 seconds
-  const [stickyStyle, setStickyStyle] = useState<React.CSSProperties>({});
 
   // Update sticky positioning when isSticky changes
-  useEffect(() => {
-    const updatePosition = () => {
-      if (isSticky) {
-        // Calculate right position to maintain alignment with the sidebar
-        // This ensures the activity feed stays in the same horizontal position
-        const container = document.querySelector('.container');
-        let rightPosition = '2rem';
-        
-        if (container) {
-          const containerRect = container.getBoundingClientRect();
-          const containerRight = window.innerWidth - containerRect.right;
-          rightPosition = `${containerRight + 32}px`; // 32px for gap
-        }
-        
-        setStickyStyle({
-          position: 'fixed',
-          top: '6rem', // 24 * 4 = 96px to account for header
-          right: rightPosition,
-          zIndex: 30,
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-          maxHeight: 'calc(100vh - 8rem)', // Prevent overflow
-          overflowY: 'auto',
-          transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)', // Longer, more natural easing
-          opacity: opacity,
-          transform: `scale(${scale})`,
-          transformOrigin: 'top center'
-        });
-      } else {
-        setStickyStyle({
-          position: 'sticky',
-          top: '6rem',
-          maxHeight: 'calc(100vh - 8rem)',
-          overflowY: 'auto',
-          transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)', // Longer, more natural easing
-          boxShadow: 'none',
-          opacity: opacity,
-          transform: `scale(${scale})`,
-          transformOrigin: 'top center'
-        });
-      }
-    };
-
-    updatePosition();
-
-    // Update position on window resize
-    if (isSticky) {
-      window.addEventListener('resize', updatePosition);
-      return () => window.removeEventListener('resize', updatePosition);
-    }
-  }, [isSticky, opacity, scale]);
-
   const getIcon = (type: ActivityItem["type"]) => {
     switch (type) {
       case "trending":
@@ -92,16 +34,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ isSticky = false, opacity =
 
   if (error) {
     return (
-      <div 
-        className="w-80 bg-card border rounded-2xl p-4 h-fit"
-        style={{
-          ...stickyStyle,
-          opacity: opacity,
-          transform: `scale(${scale})`,
-          transformOrigin: 'top center',
-          transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-        }}
-      >
+      <div className="w-80 bg-card border rounded-2xl p-4 h-fit">
         <div className="flex items-center gap-2 mb-4">
           <div className="h-2 w-2 bg-red-500 rounded-full" />
           <h3 className="font-semibold text-sm">Live Activity</h3>
@@ -114,10 +47,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ isSticky = false, opacity =
   }
 
   return (
-    <div 
-      className="w-80 bg-card border rounded-2xl p-4 h-fit"
-      style={stickyStyle}
-    >
+    <div className="w-80 bg-card border rounded-2xl p-4 h-fit">
       <div className="flex items-center gap-2 mb-4">
         <div className={`h-2 w-2 rounded-full animate-pulse ${loading ? 'bg-yellow-500' : 'bg-green-500'}`} />
         <h3 className="font-semibold text-sm">Live Activity</h3>

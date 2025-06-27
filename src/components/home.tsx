@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -13,6 +13,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
 import ProductSubmission from "./ProductSubmission";
 import ProductGrid from "./ProductGrid";
 import ActivityFeed from "./ActivityFeed";
+import { StatsCard } from "./StatsCard";
 import FloatingProductCard from "./FloatingProductCard";
 import AuthModal from "./AuthModal";
 import Header from "./Header";
@@ -30,105 +31,12 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState("trending");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showAllCategories, setShowAllCategories] = useState(false);
-  const [isActivitySticky, setIsActivitySticky] = useState(false);
-  const [activityOpacity, setActivityOpacity] = useState(1);
-  const [activityScale, setActivityScale] = useState(1);
-  const activityFeedRef = useRef<HTMLDivElement>(null);
-  
-  const mainContentRef = useRef<HTMLDivElement>(null);
 
   // Fetch categories with counts
   const { categories, loading: categoriesLoading } = useCategories();
   
   // Fetch products based on active tab and selected category
   const { products, loading: productsLoading, refetch } = useProductsByTab(activeTab, selectedCategory);
-
-  // Handle scroll for sticky activity feed
-  useEffect(() => {
-    const handleScroll = () => {
-      if (mainContentRef.current) {
-        const mainContentTop = mainContentRef.current.offsetTop;
-        const scrollY = window.scrollY;
-        const headerHeight = 96; // Header height (approximately 24 * 4)
-        
-        // Get footer element to detect when we're near it
-        const footer = document.querySelector('footer');
-        const mainContent = mainContentRef.current;
-        
-        if (footer && mainContent) {
-          const footerTop = footer.offsetTop;
-          const mainContentBottom = mainContent.offsetTop + mainContent.offsetHeight;
-          const windowHeight = window.innerHeight;
-          
-          // Get actual activity feed height if available, otherwise use default
-          const activityFeedHeight = activityFeedRef.current 
-            ? activityFeedRef.current.offsetHeight + 50 // Add some buffer
-            : 450; // Default fallback
-          
-          // Calculate distances for smooth transitions
-          const scrollBottom = scrollY + windowHeight;
-          const distanceFromFooter = footerTop - scrollBottom;
-          const distanceFromMainContentEnd = mainContentBottom - scrollY;
-          
-          // Much more gradual fade - start fading when footer is 3x the feed height away
-          const fadeStartDistance = activityFeedHeight * 3; // Start fade much earlier
-          const fadeEndDistance = activityFeedHeight * 0.5; // End fade close to footer
-          
-          let opacity = 1;
-          let scale = 1;
-          
-          // Primary fade based on footer distance
-          if (distanceFromFooter <= fadeStartDistance) {
-            if (distanceFromFooter <= fadeEndDistance) {
-              // Very close to footer
-              opacity = 0.1;
-              scale = 0.95;
-            } else {
-              // Gradual fade over a long distance
-              const totalFadeDistance = fadeStartDistance - fadeEndDistance;
-              const currentFadeDistance = distanceFromFooter - fadeEndDistance;
-              const fadeProgress = Math.max(0, Math.min(1, currentFadeDistance / totalFadeDistance));
-              
-              // Smooth easing curve for more natural feel
-              const easedProgress = 1 - Math.pow(1 - fadeProgress, 3); // Cubic easing
-              
-              opacity = Math.max(0.1, 0.1 + (easedProgress * 0.9)); // Smooth from 1 to 0.1
-              scale = Math.max(0.95, 0.95 + (easedProgress * 0.05)); // Smooth from 1 to 0.95
-            }
-          }
-          
-          // Secondary fade based on main content end (less aggressive)
-          const contentFadeDistance = activityFeedHeight * 2;
-          if (distanceFromMainContentEnd < contentFadeDistance && distanceFromMainContentEnd > 0) {
-            const contentProgress = distanceFromMainContentEnd / contentFadeDistance;
-            const contentOpacity = Math.max(0.3, contentProgress); // Don't fade as much for content end
-            const contentScale = Math.max(0.98, 0.98 + (0.02 * contentProgress));
-            
-            // Use the lower opacity/scale if content-based fading is more restrictive
-            if (contentOpacity < opacity) {
-              opacity = contentOpacity;
-              scale = contentScale;
-            }
-          }
-          
-          // Determine if should be sticky (only stop when almost invisible)
-          const shouldStopSticky = opacity <= 0.2; // Stop sticky when very faded
-          
-          // Make activity feed sticky when main content reaches the header
-          const shouldBeSticky = scrollY >= (mainContentTop - headerHeight) && !shouldStopSticky;
-          
-          setIsActivitySticky(shouldBeSticky);
-          setActivityOpacity(opacity);
-          setActivityScale(scale);
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Call once to set initial state
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Define which categories to show by default (max 5 tags)
   const defaultCategories = ["all", "Creative Tools", "Productivity", "AI-Powered", "Fun & Games"];
@@ -264,7 +172,7 @@ const Home = () => {
       </section>
 
       {/* Main Content */}
-      <main className="container px-3 py-6 sm:px-4 sm:py-8 md:px-6 md:py-12 max-w-full overflow-hidden" ref={mainContentRef}>
+      <main className="container px-3 py-6 sm:px-4 sm:py-8 md:px-6 md:py-12 max-w-full overflow-hidden">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Main Content */}
           <div className="flex-1 min-w-0">{/* min-w-0 helps with flex overflow */}
@@ -392,9 +300,13 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Activity Sidebar - Hidden on mobile, conditionally sticky */}
-          <div className="hidden xl:block w-80 self-start" ref={activityFeedRef}>
-            <ActivityFeed isSticky={isActivitySticky} opacity={activityOpacity} scale={activityScale} />
+          {/* Activity Sidebar - Hidden on mobile */}
+          <div className="hidden xl:block w-80 self-start">
+            <ActivityFeed />
+            {/* Add stats card below activity feed */}
+            <div className="mt-4">
+              <StatsCard />
+            </div>
           </div>
         </div>
       </main>

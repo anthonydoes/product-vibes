@@ -157,6 +157,45 @@ export interface Database {
           }
         ]
       }
+      product_views: {
+        Row: {
+          id: string
+          product_id: string
+          user_id: string | null
+          ip_address: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          user_id?: string | null
+          ip_address?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          user_id?: string | null
+          ip_address?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_views_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_views_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -171,6 +210,14 @@ export interface Database {
       decrement_upvotes: {
         Args: {
           product_id: string
+        }
+        Returns: undefined
+      }
+      increment_product_views: {
+        Args: {
+          product_uuid: string
+          user_uuid?: string
+          user_ip?: string
         }
         Returns: undefined
       }

@@ -117,4 +117,15 @@ export class UserService {
 
     return { available: !data, error }
   }
+
+  // Get a user profile by username (for public viewing)
+  static async getPublicProfile(username: string) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('username', username)
+      .single()
+
+    return { data, error }
+  }
 }
