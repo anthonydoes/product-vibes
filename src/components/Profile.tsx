@@ -9,6 +9,7 @@ import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { useAuthContext } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { extractDomainName } from '../lib/utils';
 import { AvatarGenerator } from '../utils/avatarGenerator';
 import Header from './Header';
 import ProductSubmission from './ProductSubmission';
@@ -166,7 +167,7 @@ const Profile = () => {
                         className="flex items-center gap-1 hover:text-foreground transition-colors"
                       >
                         <Globe className="h-4 w-4" />
-                        Website
+                        {extractDomainName(profile.website)}
                         <ExternalLink className="h-3 w-3" />
                       </a>
                     )}

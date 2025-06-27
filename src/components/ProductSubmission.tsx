@@ -30,6 +30,7 @@ import { useAuthContext } from "../contexts/AuthContext";
 import { ProductService } from "../services/productService";
 import { StorageService } from "../services/storageService";
 import { FileValidator } from "../utils/fileValidation";
+import { normalizeUrl } from "../lib/utils";
 
 interface ProductSubmissionProps {
   open?: boolean;
@@ -287,7 +288,7 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
       const productToSubmit = {
         name: productData.title,
         description: productData.description,
-        website_url: productData.url || null,
+        website_url: normalizeUrl(productData.url) || null,
         category: productData.category,
         tags: productData.tags,
         creator_id: user.id,
@@ -395,12 +396,32 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
       errors.url = "Product URL is required";
       isValid = false;
     } else {
-      // Basic URL format validation
-      try {
-        new URL(productData.url);
-      } catch {
-        errors.url = "Please enter a valid URL";
+      // More lenient URL validation
+      const urlInput = productData.url.trim();
+      
+      // Check for basic domain pattern (allow domains like hello.com, app.example.com, etc.)
+      const domainPattern = /^(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.?[a-zA-Z]{2,}(?:\/.*)?$/;
+      
+      if (!domainPattern.test(urlInput)) {
+        errors.url = "Please enter a valid URL (e.g., hello.com or https://hello.com)";
         isValid = false;
+      } else {
+        // Additional validation with URL constructor for well-formed URLs
+        try {
+          const normalizedUrl = normalizeUrl(urlInput);
+          const urlObj = new URL(normalizedUrl);
+          
+          // Ensure hostname is reasonable
+          if (!urlObj.hostname || urlObj.hostname.length < 4 || !urlObj.hostname.includes('.')) {
+            throw new Error("Invalid hostname");
+          }
+        } catch {
+          // Fallback to pattern validation only for edge cases
+          if (!domainPattern.test(urlInput)) {
+            errors.url = "Please enter a valid URL (e.g., hello.com or https://hello.com)";
+            isValid = false;
+          }
+        }
       }
     }
 
@@ -605,12 +626,15 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
                   name="url"
                   value={productData.url}
                   onChange={handleInputChange}
-                  placeholder="https://your-product.com"
+                  placeholder="your-product.com"
                   className={`mt-1 ${validationErrors.url ? 'border-red-500 focus:border-red-500' : ''}`}
                 />
                 {validationErrors.url && (
                   <p className="text-sm text-red-500 mt-1">{validationErrors.url}</p>
                 )}
+                <p className="text-xs text-muted-foreground mt-1">
+                  We'll automatically add https:// if not provided
+                </p>
               </div>
 
               {/* Logo Upload */}

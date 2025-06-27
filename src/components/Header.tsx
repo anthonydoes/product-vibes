@@ -145,8 +145,14 @@ const Header: React.FC<HeaderProps> = ({ onOpenSubmission, onOpenAuth }) => {
                   <span className="font-medium">{user.user_metadata?.username || user.email}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/profile')}>Profile</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/settings')}>
+                <DropdownMenuItem onClick={() => {
+                  console.log('Profile clicked, navigating to /profile');
+                  navigate('/profile');
+                }}>Profile</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {
+                  console.log('Settings clicked, navigating to /settings');
+                  navigate('/settings');
+                }}>
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </DropdownMenuItem>
