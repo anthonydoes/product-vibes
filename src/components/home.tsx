@@ -23,7 +23,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "./ui/dropdown-menu";
-import ProductFeed from "./ProductFeed";
 import ProductSubmission from "./ProductSubmission";
 import ProductGrid from "./ProductGrid";
 import ActivityFeed from "./ActivityFeed";
