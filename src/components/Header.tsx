@@ -6,6 +6,7 @@ import {
   Plus,
   Settings,
   LogOut,
+  Package,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -149,6 +150,13 @@ const Header: React.FC<HeaderProps> = ({ onOpenSubmission, onOpenAuth }) => {
                   console.log('Profile clicked, navigating to /profile');
                   navigate('/profile');
                 }}>Profile</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {
+                  console.log('Manage Products clicked, navigating to /manage-products');
+                  navigate('/manage-products');
+                }}>
+                  <Package className="mr-2 h-4 w-4" />
+                  Manage Products
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => {
                   console.log('Settings clicked, navigating to /settings');
                   navigate('/settings');

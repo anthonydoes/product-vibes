@@ -13,6 +13,7 @@ export class ProductService {
     offset?: number
     trending?: boolean
     featured?: boolean
+    creatorId?: string  // Add creatorId filter
   }) {
     let query = supabase
       .from('products')
@@ -37,6 +38,10 @@ export class ProductService {
 
     if (options?.featured) {
       query = query.eq('is_featured', true)
+    }
+
+    if (options?.creatorId) {
+      query = query.eq('creator_id', options.creatorId)
     }
 
     if (options?.limit) {
