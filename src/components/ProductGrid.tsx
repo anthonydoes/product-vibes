@@ -4,7 +4,6 @@ import { ExternalLink } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import EmptyState from "./EmptyState";
-import EnhancedUpvoteButton from "./EnhancedUpvoteButton";
 import { categoryConfig } from "../data/categories";
 import type { Database } from "../types/supabase";
 
@@ -67,15 +66,6 @@ const ProductCard = ({ product }: { product: Product }) => {
     return name.slice(0, 2).toUpperCase();
   };
 
-  // Check if product was launched today (new)
-  const isNew = () => {
-    const today = new Date();
-    const launchDate = new Date(product.created_at);
-    const timeDiff = today.getTime() - launchDate.getTime();
-    const daysDiff = timeDiff / (1000 * 3600 * 24);
-    return daysDiff <= 1;
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -123,25 +113,6 @@ const ProductCard = ({ product }: { product: Product }) => {
                   <h3 className="font-semibold text-base sm:text-lg text-foreground truncate">{product.name}</h3>
                 )}
               </div>
-              
-              {/* Status Badges - Mobile: Stack vertically, Desktop: Horizontal */}
-              <div className="flex flex-col sm:flex-row gap-1 sm:gap-1.5 flex-shrink-0">
-                {product.is_trending && (
-                  <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs border-0 shadow-sm whitespace-nowrap">
-                    🔥
-                  </Badge>
-                )}
-                {product.is_featured && (
-                  <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs border-0 shadow-sm whitespace-nowrap">
-                    ⭐
-                  </Badge>
-                )}
-                {isNew() && (
-                  <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs border-0 shadow-sm whitespace-nowrap">
-                    ✨
-                  </Badge>
-                )}
-              </div>
             </div>
           </div>
         </div>
@@ -182,14 +153,19 @@ const ProductCard = ({ product }: { product: Product }) => {
           
           {/* Upvote Button */}
           <div className="flex-shrink-0">
-            <EnhancedUpvoteButton
-              upvotes={upvoteCount}
-              isUpvoted={isUpvoted}
-              onUpvote={handleUpvote}
-              size="sm"
-              showProgress={true}
-              showMilestone={true}
-            />
+            <button
+              onClick={handleUpvote}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border transition-all duration-200 text-sm font-medium ${
+                isUpvoted
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-background hover:bg-accent border-border text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <span className={`transition-transform duration-200 ${isUpvoted ? 'scale-110' : ''}`}>
+                ▲
+              </span>
+              <span>{upvoteCount}</span>
+            </button>
           </div>
         </div>
       </div>

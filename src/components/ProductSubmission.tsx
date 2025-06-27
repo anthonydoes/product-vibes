@@ -888,7 +888,7 @@ const ProductSubmission: React.FC<ProductSubmissionProps> = ({
                           )}
                         </div>
                         
-                        {/* Upvote button - simplified version matching EnhancedUpvoteButton */}
+                        {/* Simple upvote button */}
                         <div className="ml-4">
                           <div className="flex flex-col items-end gap-1">
                             <Button

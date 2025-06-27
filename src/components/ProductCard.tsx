@@ -10,8 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { MessageSquare, Share2 } from "lucide-react";
-import EnhancedUpvoteButton from "./EnhancedUpvoteButton";
+import { MessageSquare, Share2, ChevronUp } from "lucide-react";
 
 interface ProductCardProps {
   id?: string;
@@ -185,15 +184,22 @@ const ProductCard = ({
               {/* Actions */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1">
-                  <EnhancedUpvoteButton
-                    upvotes={currentUpvotes}
-                    isUpvoted={isUpvoted}
-                    onUpvote={handleUpvote}
-                    size="sm"
-                    showProgress={true}
-                    showMilestone={true}
-                    className="flex-shrink-0"
-                  />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={isUpvoted ? "default" : "outline"}
+                        size="sm"
+                        className="flex items-center gap-1 px-1.5 h-6 text-[11px] hover:bg-primary/10 hover:text-primary flex-shrink-0"
+                        onClick={handleUpvote}
+                      >
+                        <ChevronUp className={`h-3 w-3 ${isUpvoted ? 'text-white' : ''}`} />
+                        <span className={isUpvoted ? 'text-white' : ''}>{currentUpvotes}</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{isUpvoted ? 'Remove upvote' : 'Upvote this product'}</p>
+                    </TooltipContent>
+                  </Tooltip>
 
                   <Tooltip>
                     <TooltipTrigger asChild>
