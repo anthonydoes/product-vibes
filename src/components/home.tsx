@@ -8,6 +8,7 @@ import {
   Sparkles,
   Clock,
   Flame,
+  LogOut,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -15,52 +16,69 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { Dialog, DialogTrigger } from "./ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "./ui/dropdown-menu";
 import ProductFeed from "./ProductFeed";
 import ProductSubmission from "./ProductSubmission";
 import ProductGrid from "./ProductGrid";
 import ActivityFeed from "./ActivityFeed";
 import FloatingProductCard from "./FloatingProductCard";
-import { mockProducts, categories } from "../data/mockData";
+import AuthModal from "./AuthModal";
+import { useAuthContext } from "../contexts/AuthContext";
+import { useProductsByTab } from "../hooks/useProducts";
+import { useCategories } from "../hooks/useCategories";
+import { categoryConfig } from "../data/categories";
 
 const Home = () => {
+  const { user, loading, signOut } = useAuthContext();
   const [isSubmissionOpen, setIsSubmissionOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState<'signin' | 'signup'>('signin');
   const [activeTab, setActiveTab] = useState("trending");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showAllCategories, setShowAllCategories] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Mock auth state
+
+  // Fetch categories with counts
+  const { categories, loading: categoriesLoading } = useCategories();
+  
+  // Fetch products based on active tab and selected category
+  const { products, loading: productsLoading, refetch } = useProductsByTab(activeTab, selectedCategory);
 
   // Define which categories to show by default (max 5 tags)
-  const defaultCategories = ["all", "creative", "productivity", "ai", "games"];
+  const defaultCategories = ["all", "Creative Tools", "Productivity", "AI-Powered", "Fun & Games"];
   const visibleCategories = showAllCategories 
     ? categories 
     : categories.filter(cat => defaultCategories.includes(cat.id));
   const hiddenCategoriesCount = categories.length - defaultCategories.length;
 
-  // Filter products based on selected category
-  const filteredProducts = selectedCategory === "all" 
-    ? mockProducts 
-    : mockProducts.filter(product => 
-        product.category === categories.find(cat => cat.id === selectedCategory)?.name
-      );
+  // Handle product submission success
+  const handleProductSubmitted = () => {
+    console.log('Product submitted successfully, refreshing list...');
+    console.log('Current activeTab:', activeTab);
+    console.log('Current selectedCategory:', selectedCategory);
+    console.log('Current products count:', products.length);
+    
+    // Switch to "Fresh Drops" tab where new products belong
+    setActiveTab("new");
+    setSelectedCategory("all");
+    
+    // Small delay to ensure database has processed the new product
+    setTimeout(() => {
+      console.log('Triggering refetch...');
+      refetch(); // Refresh products after submission
+    }, 1000);
+    setIsSubmissionOpen(false);
+  };
 
-  // Get products for different tabs
-  const getProductsByTab = (tab: string) => {
-    switch (tab) {
-      case "trending":
-        return filteredProducts.filter(p => p.isTrending).concat(
-          filteredProducts.filter(p => !p.isTrending).slice(0, 3)
-        );
-      case "new":
-        return filteredProducts.filter(p => p.isNew).concat(
-          filteredProducts.filter(p => !p.isNew).slice(0, 3)
-        );
-      case "rising":
-        return filteredProducts.filter(p => p.isRising).concat(
-          filteredProducts.filter(p => !p.isRising).slice(0, 3)
-        );
-      default:
-        return filteredProducts;
-    }
+  // Handle opening submission modal
+  const handleOpenSubmission = () => {
+    console.log('Opening submission modal...');
+    setIsSubmissionOpen(true);
   };
 
   return (
@@ -142,36 +160,66 @@ const Home = () => {
               />
             </div>
 
-            {isLoggedIn ? (
+            {user ? (
               <div className="flex items-center gap-4">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button
-                    onClick={() => setIsSubmissionOpen(true)}
+                    onClick={handleOpenSubmission}
                     className="hidden md:flex gap-2 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600"
                   >
                     <Plus className="h-4 w-4" />
                     Drop Product
                   </Button>
                 </motion.div>
-                <motion.div whileHover={{ scale: 1.05 }}>
-                  <Avatar className="h-8 w-8 border border-muted-foreground/20">
-                    <AvatarImage
-                      src="https://api.dicebear.com/7.x/avataaars/svg?seed=maker"
-                      alt="User"
-                    />
-                    <AvatarFallback>MK</AvatarFallback>
-                  </Avatar>
-                </motion.div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <motion.div whileHover={{ scale: 1.05 }}>
+                      <Avatar className="h-8 w-8 border border-muted-foreground/20 cursor-pointer">
+                        <AvatarImage
+                          src={user.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                          alt="User"
+                        />
+                        <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                    </motion.div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem>
+                      <span className="font-medium">{user.user_metadata?.username || user.email}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>Profile</DropdownMenuItem>
+                    <DropdownMenuItem>Settings</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => signOut()}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button variant="outline" className="hidden sm:flex hover:border-primary transition-colors">
+                  <Button 
+                    variant="outline" 
+                    className="hidden sm:flex hover:border-primary transition-colors"
+                    onClick={() => {
+                      setAuthModalTab('signin');
+                      setIsAuthModalOpen(true);
+                    }}
+                  >
                     Log in
                   </Button>
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button className="bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600">
+                  <Button 
+                    className="bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600"
+                    onClick={() => {
+                      setAuthModalTab('signup');
+                      setIsAuthModalOpen(true);
+                    }}
+                  >
                     Sign up
                   </Button>
                 </motion.div>
@@ -183,33 +231,45 @@ const Home = () => {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
-        {/* Floating Product Cards */}
+        {/* Floating Product Cards - Disabled for now while using real data */}
+        {/*
         <div className="absolute inset-0 pointer-events-none">
-          <FloatingProductCard
-            product={mockProducts[0]}
-            position={{ top: "20%", left: "10%" }}
-            delay={0}
-            size="md"
-          />
-          <FloatingProductCard
-            product={mockProducts[1]}
-            position={{ top: "60%", right: "15%" }}
-            delay={0.5}
-            size="sm"
-          />
-          <FloatingProductCard
-            product={mockProducts[2]}
-            position={{ bottom: "20%", left: "5%" }}
-            delay={1}
-            size="lg"
-          />
-          <FloatingProductCard
-            product={mockProducts[3]}
-            position={{ top: "40%", right: "5%" }}
-            delay={1.5}
-            size="md"
-          />
+          {products.length > 0 && (
+            <>
+              <FloatingProductCard
+                product={products[0]}
+                position={{ top: "20%", left: "10%" }}
+                delay={0}
+                size="md"
+              />
+              {products.length > 1 && (
+                <FloatingProductCard
+                  product={products[1]}
+                  position={{ top: "60%", right: "15%" }}
+                  delay={0.5}
+                  size="sm"
+                />
+              )}
+              {products.length > 2 && (
+                <FloatingProductCard
+                  product={products[2]}
+                  position={{ bottom: "20%", left: "5%" }}
+                  delay={1}
+                  size="lg"
+                />
+              )}
+              {products.length > 3 && (
+                <FloatingProductCard
+                  product={products[3]}
+                  position={{ top: "40%", right: "5%" }}
+                  delay={1.5}
+                  size="md"
+                />
+              )}
+            </>
+          )}
         </div>
+        */}
 
         <div className="container px-4 py-16 md:py-12 md:px-6 relative z-10">
           <div className="flex flex-col items-center justify-center text-center max-w-4xl mx-auto">
@@ -228,7 +288,7 @@ const Home = () => {
             >
               <Button
                 size="lg"
-                onClick={() => setIsSubmissionOpen(true)}
+                onClick={handleOpenSubmission}
                 className="gap-2 text-lg px-8 py-6 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 <Plus className="h-5 w-5" />
@@ -343,23 +403,26 @@ const Home = () => {
 
                 <TabsContent value="trending">
                   <ProductGrid 
-                    products={getProductsByTab("trending")} 
-                    category={selectedCategory !== "all" ? categories.find(c => c.id === selectedCategory)?.name : undefined}
-                    onSubmitProduct={() => setIsSubmissionOpen(true)}
+                    products={products} 
+                    loading={productsLoading}
+                    category={selectedCategory !== "all" ? selectedCategory : undefined}
+                    onSubmitProduct={handleOpenSubmission}
                   />
                 </TabsContent>
                 <TabsContent value="new">
                   <ProductGrid 
-                    products={getProductsByTab("new")} 
-                    category={selectedCategory !== "all" ? categories.find(c => c.id === selectedCategory)?.name : undefined}
-                    onSubmitProduct={() => setIsSubmissionOpen(true)}
+                    products={products} 
+                    loading={productsLoading}
+                    category={selectedCategory !== "all" ? selectedCategory : undefined}
+                    onSubmitProduct={handleOpenSubmission}
                   />
                 </TabsContent>
                 <TabsContent value="rising">
                   <ProductGrid 
-                    products={getProductsByTab("rising")} 
-                    category={selectedCategory !== "all" ? categories.find(c => c.id === selectedCategory)?.name : undefined}
-                    onSubmitProduct={() => setIsSubmissionOpen(true)}
+                    products={products} 
+                    loading={productsLoading}
+                    category={selectedCategory !== "all" ? selectedCategory : undefined}
+                    onSubmitProduct={handleOpenSubmission}
                   />
                 </TabsContent>
               </Tabs>
@@ -510,7 +573,16 @@ const Home = () => {
       <ProductSubmission
         open={isSubmissionOpen}
         onOpenChange={setIsSubmissionOpen}
+        onSuccess={handleProductSubmitted}
       />
+
+      {/* Auth Modal */}
+      {isAuthModalOpen && (
+        <AuthModal
+          onClose={() => setIsAuthModalOpen(false)}
+          defaultTab={authModalTab}
+        />
+      )}
     </div>
   );
 };

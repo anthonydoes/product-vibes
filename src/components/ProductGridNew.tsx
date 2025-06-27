@@ -34,19 +34,11 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   // Helper function to get creator info
   const getCreatorName = () => {
-    // If profile is missing, fall back to a default name
-    if (!product.profiles) {
-      return 'Anonymous Creator';
-    }
-    return product.profiles.full_name || product.profiles.username || 'Anonymous';
+    return product.profiles?.full_name || product.profiles?.username || 'Anonymous';
   };
 
   const getCreatorAvatar = () => {
-    // If profile is missing, generate avatar from creator_id
-    if (!product.profiles?.avatar_url) {
-      return `https://api.dicebear.com/7.x/avataaars/svg?seed=${product.creator_id}`;
-    }
-    return product.profiles.avatar_url;
+    return product.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${product.creator_id}`;
   };
 
   const getCreatorInitials = () => {
@@ -77,8 +69,6 @@ const ProductCard = ({ product }: { product: Product }) => {
           <div className="w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-purple-50 to-blue-50 border">
             {product.logo_url ? (
               <img src={product.logo_url} alt={product.name} className="w-full h-full object-cover" />
-            ) : product.product_images && product.product_images.length > 0 ? (
-              <img src={product.product_images[0]} alt={product.name} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-2xl">
                 📦
@@ -141,22 +131,6 @@ const ProductCard = ({ product }: { product: Product }) => {
                   {new Date(product.created_at).toLocaleDateString()}
                 </span>
               </div>
-              
-              {/* Tags */}
-              {product.tags && product.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {product.tags.slice(0, 3).map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-xs px-2 py-0.5">
-                      {tag}
-                    </Badge>
-                  ))}
-                  {product.tags.length > 3 && (
-                    <Badge variant="outline" className="text-xs px-2 py-0.5 text-muted-foreground">
-                      +{product.tags.length - 3}
-                    </Badge>
-                  )}
-                </div>
-              )}
             </div>
             
             {/* Upvote */}
@@ -177,9 +151,6 @@ const ProductCard = ({ product }: { product: Product }) => {
 };
 
 const ProductGrid: React.FC<ProductGridProps> = ({ products, loading, category, onSubmitProduct }) => {
-  console.log('ProductGrid received:', products.length, 'products')
-  console.log('Sample product for display:', products[0])
-  
   if (loading) {
     return (
       <div className="space-y-3">
