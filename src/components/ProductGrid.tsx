@@ -5,6 +5,7 @@ import { Badge } from "./ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import EmptyState from "./EmptyState";
 import EnhancedUpvoteButton from "./EnhancedUpvoteButton";
+import { categoryConfig } from "../data/categories";
 import type { Database } from "../types/supabase";
 
 type Product = Database['public']['Tables']['products']['Row'] & {
@@ -49,6 +50,18 @@ const ProductCard = ({ product }: { product: Product }) => {
     return product.profiles.avatar_url;
   };
 
+  // Helper function to get category color
+  const getCategoryColor = () => {
+    const categoryData = categoryConfig.find(cat => cat.id === product.category);
+    return categoryData?.color || "from-gray-500 to-gray-600";
+  };
+
+  // Helper function to get category icon
+  const getCategoryIcon = () => {
+    const categoryData = categoryConfig.find(cat => cat.id === product.category);
+    return categoryData?.icon || "📦";
+  };
+
   const getCreatorInitials = () => {
     const name = getCreatorName();
     return name.slice(0, 2).toUpperCase();
@@ -65,101 +78,110 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      whileHover={{ x: 4 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -2 }}
       transition={{ duration: 0.2 }}
-      className="group bg-card rounded-lg border p-4 hover:shadow-md transition-all duration-200"
+      className="group bg-card rounded-2xl border hover:shadow-lg transition-all duration-200 overflow-hidden"
     >
-      <div className="flex items-center gap-4">
-        {/* Logo */}
-        <div className="flex-shrink-0">
-          <div className="w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-purple-50 to-blue-50 border">
-            {product.logo_url ? (
-              <img src={product.logo_url} alt={product.name} className="w-full h-full object-cover" />
-            ) : product.product_images && product.product_images.length > 0 ? (
-              <img src={product.product_images[0]} alt={product.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-2xl">
-                📦
-              </div>
-            )}
+      <div className="p-4 sm:p-6">
+        {/* Header Row - Logo, Title, Badges */}
+        <div className="flex items-start gap-3 mb-4">
+          {/* Logo */}
+          <div className="flex-shrink-0">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-gradient-to-br from-purple-50 to-blue-50 border shadow-sm">
+              {product.logo_url ? (
+                <img src={product.logo_url} alt={product.name} className="w-full h-full object-cover" />
+              ) : product.product_images && product.product_images.length > 0 ? (
+                <img src={product.product_images[0]} alt={product.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-lg text-muted-foreground">
+                  📦
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
+          
+          {/* Title and Badges */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-3">
+              {/* Title */}
+              <div className="flex-1 min-w-0">
                 {product.website_url ? (
                   <a 
                     href={product.website_url} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="flex items-center gap-2 hover:text-primary transition-colors"
+                    className="flex items-center gap-2 hover:text-primary transition-colors group/link"
                   >
-                    <h3 className="font-semibold text-base truncate">{product.name}</h3>
-                    <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <h3 className="font-semibold text-base sm:text-lg text-foreground group-hover/link:text-primary transition-colors truncate">
+                      {product.name}
+                    </h3>
+                    <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 opacity-0 group-hover/link:opacity-100 transition-all" />
                   </a>
                 ) : (
-                  <h3 className="font-semibold text-base truncate">{product.name}</h3>
+                  <h3 className="font-semibold text-base sm:text-lg text-foreground truncate">{product.name}</h3>
                 )}
-                
-                {/* Badges */}
+              </div>
+              
+              {/* Status Badges - Mobile: Stack vertically, Desktop: Horizontal */}
+              <div className="flex flex-col sm:flex-row gap-1 sm:gap-1.5 flex-shrink-0">
                 {product.is_trending && (
-                  <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs border-0">
-                    🔥 Trending
+                  <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs border-0 shadow-sm whitespace-nowrap">
+                    🔥
                   </Badge>
                 )}
                 {product.is_featured && (
-                  <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs border-0">
-                    ⭐ Featured
+                  <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs border-0 shadow-sm whitespace-nowrap">
+                    ⭐
                   </Badge>
                 )}
                 {isNew() && (
-                  <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs border-0">
-                    ✨ Fresh
+                  <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs border-0 shadow-sm whitespace-nowrap">
+                    ✨
                   </Badge>
                 )}
               </div>
-              
-              <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{product.description}</p>
-              
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Avatar className="h-4 w-4">
-                    <AvatarImage src={getCreatorAvatar()} />
-                    <AvatarFallback className="text-[10px]">{getCreatorInitials()}</AvatarFallback>
-                  </Avatar>
-                  <span>{getCreatorName()}</span>
-                </div>
-                <Badge variant="secondary" className="text-xs">
+            </div>
+          </div>
+        </div>
+
+        {/* Description */}
+        <div className="mb-4">
+          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+            {product.description}
+          </p>
+        </div>
+
+        {/* Bottom Row - Creator, Date, Category, Upvote */}
+        <div className="flex items-center justify-between gap-3">
+          {/* Creator Info, Date, and Category - All on same line */}
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <Avatar className="h-5 w-5 sm:h-6 sm:w-6 border flex-shrink-0">
+              <AvatarImage src={getCreatorAvatar()} />
+              <AvatarFallback className="text-[10px] font-medium">{getCreatorInitials()}</AvatarFallback>
+            </Avatar>
+            <div className="flex items-center gap-2 min-w-0 flex-1 text-xs text-muted-foreground">
+              <span className="font-medium truncate">{getCreatorName()}</span>
+              <span className="text-muted-foreground/60">•</span>
+              <span className="text-muted-foreground whitespace-nowrap">
+                {new Date(product.created_at).toLocaleDateString()}
+              </span>
+              <span className="text-muted-foreground/60">•</span>
+              <div className={`inline-block p-0.5 rounded-md bg-gradient-to-r ${getCategoryColor()} flex-shrink-0`}>
+                <Badge 
+                  variant="outline" 
+                  className="bg-background/95 backdrop-blur-sm text-foreground border-0 text-xs font-medium px-2 py-0.5 rounded-md"
+                >
+                  <span className="mr-1">{getCategoryIcon()}</span>
                   {product.category}
                 </Badge>
-                <span className="text-muted-foreground">
-                  {new Date(product.created_at).toLocaleDateString()}
-                </span>
               </div>
-              
-              {/* Tags */}
-              {product.tags && product.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {product.tags.slice(0, 3).map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-xs px-2 py-0.5">
-                      {tag}
-                    </Badge>
-                  ))}
-                  {product.tags.length > 3 && (
-                    <Badge variant="outline" className="text-xs px-2 py-0.5 text-muted-foreground">
-                      +{product.tags.length - 3}
-                    </Badge>
-                  )}
-                </div>
-              )}
             </div>
-            
-            {/* Upvote */}
+          </div>
+          
+          {/* Upvote Button */}
+          <div className="flex-shrink-0">
             <EnhancedUpvoteButton
               upvotes={upvoteCount}
               isUpvoted={isUpvoted}
@@ -167,7 +189,6 @@ const ProductCard = ({ product }: { product: Product }) => {
               size="sm"
               showProgress={true}
               showMilestone={true}
-              className="ml-4"
             />
           </div>
         </div>
@@ -182,15 +203,22 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products, loading, category, 
   
   if (loading) {
     return (
-      <div className="space-y-3">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="bg-card rounded-lg border p-4 animate-pulse">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-muted rounded-lg" />
-              <div className="flex-1">
-                <div className="h-4 bg-muted rounded w-1/3 mb-2" />
-                <div className="h-3 bg-muted rounded w-2/3 mb-2" />
-                <div className="h-3 bg-muted rounded w-1/4" />
+      <div className="grid grid-cols-1 gap-4 sm:gap-6">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="bg-card rounded-2xl border p-4 sm:p-6 animate-pulse">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-muted rounded-xl flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="h-4 sm:h-5 bg-muted rounded w-2/3 mb-2" />
+                <div className="h-3 bg-muted rounded w-full mb-2" />
+                <div className="h-3 bg-muted rounded w-3/4" />
+              </div>
+              <div className="w-8 h-6 bg-muted rounded flex-shrink-0" />
+            </div>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-muted rounded-full" />
+                <div className="h-3 bg-muted rounded w-20" />
               </div>
               <div className="w-12 h-8 bg-muted rounded" />
             </div>
@@ -212,8 +240,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products, loading, category, 
 
   return (
     <div>
-      {/* Products List */}
-      <div className="space-y-3">
+      {/* Products Grid - Mobile First, Two Columns on Desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {products.map((product, index) => (
           <motion.div
             key={product.id}

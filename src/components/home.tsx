@@ -56,6 +56,25 @@ const Home = () => {
     : categories.filter(cat => defaultCategories.includes(cat.id));
   const hiddenCategoriesCount = categories.length - defaultCategories.length;
 
+  // Calculate filtered product count and description
+  const getResultCountDescription = () => {
+    if (productsLoading) return "Loading...";
+    
+    const filteredCount = products.length;
+    const selectedCategoryData = categories.find(cat => cat.id === selectedCategory);
+    const categoryName = selectedCategoryData?.name || "All";
+    
+    if (filteredCount === 0) {
+      return selectedCategory === "all" ? "No products found" : `No ${categoryName} products found`;
+    }
+    
+    if (selectedCategory === "all") {
+      return `${filteredCount} ${filteredCount === 1 ? 'Product' : 'Products'}`;
+    }
+    
+    return `${filteredCount} ${categoryName} ${filteredCount === 1 ? 'Product' : 'Products'}`;
+  };
+
   // Handle product submission success
   const handleProductSubmitted = () => {
     console.log('Product submitted successfully, refreshing list...');
@@ -271,10 +290,10 @@ const Home = () => {
         </div>
         */}
 
-        <div className="container px-4 py-16 md:py-12 md:px-6 relative z-10">
-          <div className="flex flex-col items-center justify-center text-center max-w-4xl mx-auto">
+        <div className="container px-4 py-12 md:py-8 md:px-6 relative z-10">
+          <div className="flex flex-col items-center justify-center text-center max-w-3xl mx-auto">
             <motion.h1 
-              className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl mb-8"
+              className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
@@ -300,37 +319,37 @@ const Home = () => {
       </section>
 
       {/* Main Content */}
-      <main className="container px-4 py-8 md:px-6 md:py-12 max-w-full overflow-hidden">
-        <div className="flex gap-8">
+      <main className="container px-3 py-6 sm:px-4 sm:py-8 md:px-6 md:py-12 max-w-full overflow-hidden">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Main Content */}
           <div className="flex-1 min-w-0">{/* min-w-0 helps with flex overflow */}
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               <Tabs
                 defaultValue="trending"
                 className="w-full"
                 onValueChange={setActiveTab}
               >
-                <div className="flex flex-col gap-4 mb-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <TabsList className="bg-muted/50 w-fit">
-                      <TabsTrigger value="trending" className="gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white">
+                <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-0">
+                    <TabsList className="bg-muted/50 w-full sm:w-fit p-0">
+                      <TabsTrigger value="trending" className="flex-1 sm:flex-none gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white">
                         <Flame className="h-4 w-4" />
                         Trending
                       </TabsTrigger>
-                      <TabsTrigger value="new" className="gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white">
+                      <TabsTrigger value="new" className="flex-1 sm:flex-none gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white">
                         <Sparkles className="h-4 w-4" />
                         Fresh Drops
                       </TabsTrigger>
-                      <TabsTrigger value="rising" className="gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white">
+                      <TabsTrigger value="rising" className="flex-1 sm:flex-none gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white">
                         <TrendingUp className="h-4 w-4" />
                         Rising
                       </TabsTrigger>
                     </TabsList>
                   </div>
 
-                  {/* Category Filter - Collapsible with More button */}
+                  {/* Category Filter - Mobile Optimized */}
                   <div className="w-full">
-                    <div className="flex items-center gap-2 flex-wrap justify-start pl-1">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-start">
                       {/* Default Categories */}
                       {visibleCategories.map((category) => (
                         <motion.div
@@ -339,25 +358,17 @@ const Home = () => {
                           whileTap={{ scale: 0.98 }}
                         >
                           <Button
-                            variant={selectedCategory === category.id ? "default" : "outline"}
+                            variant="outline"
                             size="sm"
                             onClick={() => setSelectedCategory(category.id)}
-                            className={`whitespace-nowrap relative transition-all duration-200 flex-shrink-0 ${
+                            className={`whitespace-nowrap relative transition-all duration-300 ease-in-out flex-shrink-0 text-xs sm:text-sm ${
                               selectedCategory === category.id
-                                ? `bg-gradient-to-r ${category.color} text-white border-0 hover:opacity-90`
-                                : "hover:border-primary"
+                                ? `bg-gradient-to-r ${category.color} text-white border-transparent hover:opacity-90 shadow-sm`
+                                : "bg-background border-border text-foreground hover:border-primary hover:text-primary hover:bg-accent/50"
                             }`}
                           >
                             <span className="mr-1">{category.icon}</span>
-                            {category.name}
-                            {category.count > 0 && (
-                              <Badge 
-                                variant="secondary" 
-                                className="ml-2 h-5 text-xs bg-white/20 text-white border-0"
-                              >
-                                {category.count}
-                              </Badge>
-                            )}
+                            <span className="truncate max-w-[80px] sm:max-w-none">{category.name}</span>
                           </Button>
                         </motion.div>
                       ))}
@@ -372,7 +383,7 @@ const Home = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => setShowAllCategories(true)}
-                            className="whitespace-nowrap border-dashed hover:border-primary flex-shrink-0"
+                            className="whitespace-nowrap border-dashed hover:border-primary flex-shrink-0 text-xs sm:text-sm"
                           >
                             <Plus className="h-3 w-3 mr-1" />
                             More ({hiddenCategoriesCount})
@@ -390,7 +401,7 @@ const Home = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => setShowAllCategories(false)}
-                            className="whitespace-nowrap hover:border-primary flex-shrink-0"
+                            className="whitespace-nowrap hover:border-primary flex-shrink-0 text-xs sm:text-sm"
                           >
                             <ChevronDown className="h-3 w-3 mr-1" />
                             Less
@@ -398,6 +409,13 @@ const Home = () => {
                         </motion.div>
                       )}
                     </div>
+                  </div>
+                  
+                  {/* Result Count Display */}
+                  <div className="pt-2 border-t border-muted/30">
+                    <p className="text-sm text-muted-foreground font-medium">
+                      {getResultCountDescription()}
+                    </p>
                   </div>
                 </div>
 
@@ -429,8 +447,8 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Activity Sidebar */}
-          <div className="hidden lg:block w-80">
+          {/* Activity Sidebar - Hidden on mobile */}
+          <div className="hidden xl:block w-80">
             <div className="sticky top-24">
               <ActivityFeed />
             </div>
