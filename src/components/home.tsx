@@ -178,70 +178,62 @@ const Home = () => {
               />
             </div>
 
+            {/* Drop Product Button - Always visible */}
+            <Button
+              onClick={user ? handleOpenSubmission : () => {
+                setAuthModalTab('signin');
+                setIsAuthModalOpen(true);
+              }}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Drop Product
+            </Button>
+
             {user ? (
-              <div className="flex items-center gap-4">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button
-                    onClick={handleOpenSubmission}
-                    className="hidden md:flex gap-2 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Drop Product
-                  </Button>
-                </motion.div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <motion.div whileHover={{ scale: 1.05 }}>
-                      <Avatar className="h-8 w-8 border border-muted-foreground/20 cursor-pointer">
-                        <AvatarImage
-                          src={user.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
-                          alt="User"
-                        />
-                        <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                    </motion.div>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <span className="font-medium">{user.user_metadata?.username || user.email}</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>Profile</DropdownMenuItem>
-                    <DropdownMenuItem>Settings</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => signOut()}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sign out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <motion.div whileHover={{ scale: 1.05 }}>
+                    <Avatar className="h-8 w-8 border border-muted-foreground/20 cursor-pointer">
+                      <AvatarImage
+                        src={user.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                        alt="User"
+                      />
+                      <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                  </motion.div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>
+                    <span className="font-medium">{user.user_metadata?.username || user.email}</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => signOut()}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
-              <div className="flex items-center gap-2">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <div className="relative p-[2px] rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-200">
                   <Button 
-                    variant="outline" 
-                    className="hidden sm:flex hover:border-primary transition-colors"
+                    variant="ghost"
+                    className="relative bg-background hover:bg-transparent hover:text-white w-full h-full rounded-[calc(0.5rem-2px)] transition-all duration-200"
                     onClick={() => {
                       setAuthModalTab('signin');
                       setIsAuthModalOpen(true);
                     }}
                   >
-                    Log in
+                    <span className="bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent hover:text-white font-medium transition-all duration-200">
+                      Login
+                    </span>
                   </Button>
-                </motion.div>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button 
-                    className="bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600"
-                    onClick={() => {
-                      setAuthModalTab('signup');
-                      setIsAuthModalOpen(true);
-                    }}
-                  >
-                    Sign up
-                  </Button>
-                </motion.div>
-              </div>
+                </div>
+              </motion.div>
             )}
           </div>
         </div>
@@ -598,6 +590,15 @@ const Home = () => {
         <AuthModal
           onClose={() => setIsAuthModalOpen(false)}
           defaultTab={authModalTab}
+        />
+      )}
+
+      {/* Product Submission Modal */}
+      {user && (
+        <ProductSubmission
+          open={isSubmissionOpen}
+          onOpenChange={setIsSubmissionOpen}
+          onSuccess={handleProductSubmitted}
         />
       )}
     </div>
