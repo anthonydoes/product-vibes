@@ -29,8 +29,8 @@ const Home = () => {
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Mock auth state
 
-  // Define which categories to show by default
-  const defaultCategories = ["all", "creative", "productivity", "ai"];
+  // Define which categories to show by default (max 5 tags)
+  const defaultCategories = ["all", "creative", "productivity", "ai", "games"];
   const visibleCategories = showAllCategories 
     ? categories 
     : categories.filter(cat => defaultCategories.includes(cat.id));
@@ -87,6 +87,18 @@ const Home = () => {
                 whileHover={{ y: -1 }}
               >
                 Discover
+                <motion.div
+                  className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 opacity-0"
+                  whileHover={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                />
+              </motion.a>
+              <motion.a
+                href="/upvote-demo"
+                className="text-sm font-medium hover:text-primary transition-colors relative"
+                whileHover={{ y: -1 }}
+              >
+                Upvote Demo
                 <motion.div
                   className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 opacity-0"
                   whileHover={{ opacity: 1 }}
@@ -240,7 +252,7 @@ const Home = () => {
               >
                 <div className="flex flex-col gap-4 mb-6">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <TabsList className="bg-muted/50 p-1 w-fit">
+                    <TabsList className="bg-muted/50 w-fit">
                       <TabsTrigger value="trending" className="gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white">
                         <Flame className="h-4 w-4" />
                         Trending
@@ -258,7 +270,7 @@ const Home = () => {
 
                   {/* Category Filter - Collapsible with More button */}
                   <div className="w-full">
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap justify-start pl-1">
                       {/* Default Categories */}
                       {visibleCategories.map((category) => (
                         <motion.div

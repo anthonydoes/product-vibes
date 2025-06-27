@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,7 +10,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ChevronUp, MessageSquare, Share2 } from "lucide-react";
+import { MessageSquare, Share2 } from "lucide-react";
+import EnhancedUpvoteButton from "./EnhancedUpvoteButton";
 
 interface ProductCardProps {
   id?: string;
@@ -58,6 +59,9 @@ const ProductCard = ({
   isTrending = false,
   product,
 }: ProductCardProps) => {
+  const [isUpvoted, setIsUpvoted] = useState(false);
+  const [currentUpvotes, setCurrentUpvotes] = useState(0);
+
   // Use product data if provided, otherwise use individual props
   const cardData = product
     ? {
@@ -89,6 +93,16 @@ const ProductCard = ({
         isNew,
         isTrending,
       };
+
+  // Initialize current upvotes
+  React.useEffect(() => {
+    setCurrentUpvotes(cardData.upvotes);
+  }, [cardData.upvotes]);
+
+  const handleUpvote = () => {
+    setIsUpvoted(!isUpvoted);
+    setCurrentUpvotes(prev => isUpvoted ? prev - 1 : prev + 1);
+  };
 
   return (
     <TooltipProvider>
@@ -171,21 +185,15 @@ const ProductCard = ({
               {/* Actions */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="flex items-center gap-1 px-1.5 h-6 text-[11px] hover:bg-primary/10 hover:text-primary"
-                      >
-                        <ChevronUp className="h-3 w-3" />
-                        <span>{cardData.upvotes}</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Upvote this product</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <EnhancedUpvoteButton
+                    upvotes={currentUpvotes}
+                    isUpvoted={isUpvoted}
+                    onUpvote={handleUpvote}
+                    size="sm"
+                    showProgress={true}
+                    showMilestone={true}
+                    className="flex-shrink-0"
+                  />
 
                   <Tooltip>
                     <TooltipTrigger asChild>
