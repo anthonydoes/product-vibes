@@ -50,12 +50,14 @@ const ProductPage = () => {
   const [ownerProducts, setOwnerProducts] = useState<Product[]>([]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'signin' | 'signup'>('signin');
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   useEffect(() => {
-    if (slug) {
+    if (slug && !hasInitialized) {
+      setHasInitialized(true);
       fetchProduct();
     }
-  }, [slug]);
+  }, [slug, hasInitialized]);
 
   useEffect(() => {
     if (product?.creator_id) {
@@ -80,10 +82,16 @@ const ProductPage = () => {
         return;
       }
       
-      setProduct(data);
-      
       // Track view (increment view count) - don't count if user is the creator
-      await ProductService.incrementProductViews(data.id, user?.id, data.creator_id);
+      const viewResult = await ProductService.incrementProductViews(data.id, user?.id, data.creator_id);
+      
+      // If view was successfully tracked, update the view count in the data before setting state
+      if (viewResult && viewResult.viewCounted) {
+        const newCount = viewResult.newViewCount || (data.view_count || 0) + 1;
+        data.view_count = newCount;
+      }
+      
+      setProduct(data);
       
       // Check if user has upvoted this product
       if (user) {

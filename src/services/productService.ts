@@ -259,35 +259,49 @@ export class ProductService {
     // Don't count views from the product creator (except maybe the initial creation view)
     if (userId && creatorId && userId === creatorId) {
       // Skip view counting for creators viewing their own products
-      return { data: null, error: null };
+      console.log('Skipping view count for creator viewing own product');
+      return { data: null, error: null, viewCounted: false };
     }
 
-    // Check if this view has already been counted in this session
-    const sessionKey = `viewed_product_${productId}`;
+    // Create a unique session key that includes user info to separate different users/sessions
+    const userIdentifier = userId || 'anonymous';
+    const sessionKey = `viewed_product_${productId}_${userIdentifier}`;
     const hasViewedInSession = sessionStorage.getItem(sessionKey);
     
     if (hasViewedInSession) {
-      // Already counted this view in this session, don't count again
-      return { data: null, error: null };
+      // Already counted this view in this session for this user
+      console.log('Skipping view count - already viewed in this session for user:', userIdentifier);
+      return { data: null, error: null, viewCounted: false };
     }
 
-    // Mark as viewed in this session
+    // Mark as viewed in this session for this user
     sessionStorage.setItem(sessionKey, 'true');
 
-    // Use the database function that updates both products.view_count and inserts into product_views
-    const { data, error } = await supabase.rpc('increment_product_views', {
-      product_uuid: productId,
-      user_uuid: userId || null,
-      user_ip: null // We could get this from request headers in the future
-    })
+    try {
+      // Use the database function that updates both products.view_count and inserts into product_views
+      const { data, error } = await supabase.rpc('increment_product_views', {
+        product_uuid: productId,
+        user_uuid: userId || null,
+        user_ip: null // We could get this from request headers in the future
+      })
 
-    if (error) {
-      console.error('Error incrementing product views:', error)
+      if (error) {
+        console.error('Error incrementing product views:', error)
+        // Remove from session storage if the database call failed
+        sessionStorage.removeItem(sessionKey);
+        return { data: null, error, viewCounted: false };
+      }
+
+      console.log('Successfully tracked view for product:', productId, 'user:', userId || 'anonymous');
+      console.log('New view count from database function:', data);
+      
+      return { data, error: null, viewCounted: true, newViewCount: data };
+    } catch (err) {
+      console.error('Exception in incrementProductViews:', err);
       // Remove from session storage if the database call failed
       sessionStorage.removeItem(sessionKey);
+      return { data: null, error: err, viewCounted: false };
     }
-
-    return { data, error }
   }
 
   // Check if user has upvoted a product (alias for consistency)
