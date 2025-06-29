@@ -3,13 +3,8 @@ export const initializeUmami = () => {
   // Only run in browser environment
   if (typeof window === 'undefined') return;
 
-  // Get environment variables
-  const useProduction = import.meta.env.VITE_USE_PRODUCTION_UMAMI === 'true';
-  const localId = import.meta.env.VITE_UMAMI_WEBSITE_ID;
-  const productionId = import.meta.env.VITE_UMAMI_PRODUCTION_ID;
-  
-  // Determine which website ID to use
-  const websiteId = useProduction ? productionId : localId;
+  // Get the website ID from environment variables
+  const websiteId = import.meta.env.VITE_UMAMI_WEBSITE_ID;
 
   // Don't initialize if no website ID is configured
   if (!websiteId) {
@@ -30,5 +25,5 @@ export const initializeUmami = () => {
   
   document.head.appendChild(script);
   
-  console.log(`Umami analytics initialized for ${useProduction ? 'production' : 'local'} with ID: ${websiteId}`);
+  console.log(`Umami analytics initialized with ID: ${websiteId}`);
 };
