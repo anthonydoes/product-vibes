@@ -18,6 +18,7 @@ import FloatingProductCard from "./FloatingProductCard";
 import AuthModal from "./AuthModal";
 import Header from "./Header";
 import { useAuthContext } from "../contexts/AuthContext";
+import { DebugDatabase } from "./DebugDatabase"; // Temporary debug
 import { useProductsByTab } from "../hooks/useProducts";
 import { useCategories } from "../hooks/useCategories";
 import { categoryConfig } from "../data/categories";
@@ -91,7 +92,8 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
+      {process.env.NODE_ENV === 'development' && <DebugDatabase />}
       {/* Header/Navigation */}
       <Header 
         onOpenSubmission={handleOpenSubmission}

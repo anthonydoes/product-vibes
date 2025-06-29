@@ -6,10 +6,12 @@ import Settings from "./components/Settings";
 import ManageProducts from "./components/ManageProducts";
 import ProductPage from "./components/ProductPage";
 import UserProfilePage from "./components/UserProfilePage";
+import SupabaseDebug from "./components/SupabaseDebug";
 
 function App() {
   return (
     <Suspense fallback={<p>Loading...</p>}>
+      <SupabaseDebug />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
